@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path WMS-Corporativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+    <nav class="bg-gray-900 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="{% url 'inventario:dashboard' %}" class="hover:opacity-80 transition-opacity">
+                            <span class="text-white font-bold text-xl tracking-wider">Path<span class="text-blue-500">-Inventario</span></span>
+                        </a>
+                    </div>
+                    <!-- Botones del menú de navegación (NAVBAR) -->
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="{% url 'inventario:nueva_entrada' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                            Nuevas Entradas
+                        </a>
+                        <a href="{% url 'inventario:crear_orden_salida' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                            Salida / Despacho
+                        </a>
+                        <a href="{% url 'inventario:cambiar_estatus' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                            Cambiar Estatus
+                        </a>
+                        {% if request.user.is_superuser or 'Supervisores' in request.user.groups.all %}
+                        <a href="{% url 'inventario:catalogo_articulos' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                            Catálogo de Artículos
+                        </a>
+                        <a href="{% url 'inventario:catalogo_localizaciones' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                            Catálogo de Localizaciones
+                        </a>
+                        <a href="{% url 'inventario:bitacora' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                            Bitácora de Movimientos
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm font-medium text-gray-700">
+                        {{ request.user.username | upper }}
+                    </span>
+                    <form action="{% url 'logout' %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-sm font-medium text-red-600 hover:text-red-800 transition-colors">
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main>
+        <!-- Bloque exportado de diseño Tailwind para mostrar mensajes automaticos de django-->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded shadow-sm mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-red-800">{{ message }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="bg-green-50 border-l-4 border-[#0E2F2A] p-4 rounded shadow-sm mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-[#0E2F2A]" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-800">{{ message }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,60 @@
+{% extends 'inventario/base.html' %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-10">
+    <div class="bg-white p-8 border border-gray-300 shadow-sm rounded-sm">
+        
+        <div class="border-b border-gray-200 pb-4 mb-6">
+            <h1 class="text-2xl font-bold text-[#0E2F2A] uppercase tracking-tight">Crear Orden de Picking (PEPS)</h1>
+            <p class="text-sm text-gray-500 mt-1">Configuración de la meta de surtido (CC) y asignación de rampa.</p>
+        </div>
+
+        <div class="mb-8 border-b border-gray-200 pb-4 flex justify-between items-end">
+            <div>
+                <h1 class="text-2xl font-bold text-[#0E2F2A] tracking-tighter uppercase">Despacho de ordenes</h1>
+                <p class="text-sm text-gray-500 font-medium mt-1">Creacion de ordenes maestras de surtido.</p>
+            </div>
+            <a href="{% url 'inventario:nueva_salida' %}" class="bg-white border-2 border-[#0E2F2A] text-[#0E2F2A] px-5 py-2 rounded-sm text-sm font-bold hover:bg-[#0E2F2A] hover:text-white trnasition-colors uppercase tracking-wider shadow-sm">
+                + Registro de salida rapida
+            </a>
+        </div>
+
+        <form method="POST" action="{% url 'inventario:crear_orden_salida' %}" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Folio de Salida</label>
+                    <input type="text" name="folio" required placeholder="Ej. ORD-025"
+                           class="w-full rounded-sm border-gray-300 shadow-sm p-3 focus:ring-[#0E2F2A] focus:border-[#0E2F2A]">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Asignar a (Operador)</label>
+                    <input type="text" name="asignado_a" required placeholder="Ej. Juan Pérez"
+                           class="w-full rounded-sm border-gray-300 shadow-sm p-3 focus:ring-[#0E2F2A] focus:border-[#0E2F2A]">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Destino / Rampa</label>
+                    <input type="text" name="destino" required placeholder="Ej. Rampa 1"
+                           class="w-full rounded-sm border-gray-300 shadow-sm p-3 focus:ring-[#0E2F2A] focus:border-[#0E2F2A]">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Cantidad de Control (CC)</label>
+                    <input type="number" name="meta_total" step="0.01" min="0.01" required placeholder="Total de piezas a surtir"
+                           class="w-full rounded-sm border-gray-300 shadow-sm p-3 text-lg font-bold text-[#0E2F2A] focus:ring-[#0E2F2A] focus:border-[#0E2F2A]">
+                    <p class="text-xs text-gray-500 mt-1 text-right">Cantidad exacta que bloqueará el Picking List.</p>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-gray-200 flex justify-end gap-4">
+                <a href="{% url 'inventario:dashboard' %}" class="px-6 py-3 border border-gray-300 rounded-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">Cancelar</a>
+                <button type="submit" class="bg-[#0E2F2A] text-white px-8 py-3 rounded-sm text-sm font-bold shadow-sm hover:bg-opacity-90 transition-colors uppercase tracking-wider">
+                    Generar Orden e Iniciar Surtido
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

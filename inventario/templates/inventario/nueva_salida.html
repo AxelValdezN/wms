@@ -1,0 +1,67 @@
+{% extends 'inventario/base.html' %}
+{% block content %}
+
+<div class="max-w-3xl mx-auto px-4 py-10">
+    
+    <div class="mb-8 border-b border-gray-200 pb-4 flex justify-between items-end">
+        <div>
+            <h1 class="text-3xl font-black text-[#0E2F2A] tracking-tighter uppercase">Salida Rápida</h1>
+            <p class="text-sm text-gray-500 font-medium mt-1">Path Logistic & Copacker - WMS</p>
+        </div>
+        <a href="{% url 'inventario:crear_orden_salida' %}" class="text-sm font-bold text-gray-600 hover:text-gray-900 border border-gray-300 px-4 py-2 rounded-sm transition-colors uppercase tracking-wider bg-white shadow-sm">
+            Volver a Órdenes
+        </a>
+    </div>
+
+    <div class="bg-white shadow-sm border border-gray-300 p-8 rounded-sm">
+        
+        <form method="POST" action="{% url 'inventario:nueva_salida' %}" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Artículo (SKU)</label>
+                    <select name="articulo" required class="w-full border border-gray-300 rounded-sm p-3 text-sm focus:ring-[#0E2F2A] focus:border-[#0E2F2A] bg-gray-50">
+                        <option value="" disabled selected>-- Seleccione un artículo --</option>
+                        {% for art in articulos %}
+                            <option value="{{ art.id }}">{{ art.clave }} - {{ art.descripcion }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Rack de Extracción</label>
+                    <select name="localizacion" required class="w-full border border-gray-300 rounded-sm p-3 text-sm focus:ring-[#0E2F2A] focus:border-[#0E2F2A] bg-gray-50">
+                        <option value="" disabled selected>-- Seleccione la ubicación --</option>
+                        {% for loc in localizaciones %}
+                            <option value="{{ loc.id }}">{{ loc.clave }} - {{ loc.almacen }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Cantidad a Retirar</label>
+                    <input type="number" name="cantidad" min="0.01" step="0.01" required placeholder="Ej. 15"
+                        class="w-full border border-gray-300 rounded-sm p-3 text-sm font-black text-[#0E2F2A] focus:ring-[#0E2F2A] focus:border-[#0E2F2A]">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Motivo (Mermas / Ajustes)</label>
+                    <input type="text" name="motivo" required placeholder="Ej. Ajuste de inventario, Merma, Daño..."
+                        class="w-full border border-gray-300 rounded-sm p-3 text-sm uppercase focus:ring-[#0E2F2A] focus:border-[#0E2F2A]">
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200 pt-6 mt-2">
+                <button type="submit" class="w-full bg-[#0E2F2A] text-white py-3.5 rounded-sm text-sm font-black uppercase tracking-widest hover:bg-opacity-90 transition-colors shadow-sm">
+                    Confirmar Extracción Directa
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

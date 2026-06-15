@@ -1,0 +1,16 @@
+from django.urls import path
+from . import views
+
+app_name = 'inventario'
+urlpatterns = [
+    path('dashboard/', views.dashboard_inventario, name='dashboard'),
+    path('entradas/nueva/', views.registrar_entrada, name='nueva_entrada'),
+    path('cambiar_liberacion/', views.cambiar_estatus, name='cambiar_estatus'),
+    path('salidas/nueva/', views.registrar_salida, name='nueva_salida'),
+    path('catalogos/articulos/', views.catalogo_articulos, name='catalogo_articulos'),
+    path('catalogos/localizaciones/', views.catalogo_localizaciones, name='catalogo_localizaciones'),
+    path('picking_list/<str:folio>/', views.generar_picking_list, name='picking_list'),
+    path('bitacora/', views.bitacora_movimientos, name='bitacora'),
+    path('salidas/nueva-orden/', views.crear_orden_salida, name='crear_orden_salida'),
+    path('salidas/surtir/<int:orden_id>/', views.ejecutar_surtido, name='ejecutar_surtido'),
+]
