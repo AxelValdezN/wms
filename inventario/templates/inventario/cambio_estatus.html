@@ -2,36 +2,41 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="mb-8 border-b border-gray-200 pb-4">
-        <h1 class="text-3xl font-bold text-gray-900">Módulo de Liberación y Calidad</h1>
-        <p class="text-gray-500 mt-2">Gestión rápida de estatus para mercancía en piso.</p>
+    
+    <!-- Encabezado -->
+    <div class="mb-8 border-b-2 border-[#0E2F2A] pb-4">
+        <h1 class="text-3xl font-bold text-[#000000] tracking-tight uppercase">Módulo de Liberación y Calidad</h1>
+        <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Gestión rápida de estatus para mercancía en piso.</p>
     </div>
 
-    <div class="bg-white shadow-sm border border-gray-300 rounded-md p-6">
+    <!-- Caja del formulario -->
+    <div class="bg-white border border-gray-300 border-t-4 border-t-[#0E2F2A] shadow-sm p-8 rounded-none">
         <form action="{% url 'inventario:cambiar_estatus' %}" method="POST" class="space-y-6">
             {% csrf_token %}
             
+            <!-- Selector principal-->
             <div>
-                <label class="block text-sm font-medium text-gray-700">Mercancía Física a Modificar</label>
-                <select name="existencia_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-[#0E2F2A] focus:ring-[#0E2F2A]">
+                <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Mercancía Física a Modificar</label>
+                <select name="existencia_id" required class="block w-full rounded-none border-gray-300 shadow-sm p-2.5 text-sm uppercase border focus:ring-0 focus:border-[#0E2F2A] bg-white">
                     <option value="" disabled selected>-- Selecciona el lote y ubicación --</option>
                     {% for ex in existencias %}
                         <option value="{{ ex.id }}">
-                            {{ ex.articulo.clave }} | Ubicación: {{ ex.localizacion.almacen }} | Actual: {{ ex.get_estado_calidad_display }} (Cant: {{ ex.cantidad_actual }})
+                            {{ ex.articulo.clave }} | Ubicación: {{ ex.localizacion.clave|default:"Sin Rack" }} | Actual: {{ ex.get_estado_calidad_display }} (Cant: {{ ex.cantidad_actual }})
                         </option>
                     {% endfor %}
                 </select>
             </div>
 
+            <!-- Grid para cantidad y estatus-->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Cantidad a Cambiar</label>
-                    <input type="number" step="0.01" name="cantidad" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-[#0E2F2A] focus:ring-[#0E2F2A]">
+                    <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Cantidad a Cambiar</label>
+                    <input type="number" step="0.01" name="cantidad" required class="block w-full rounded-none border-gray-300 shadow-sm p-2.5 text-sm font-bold border focus:ring-0 focus:border-[#0E2F2A]">
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Nuevo Estatus de Calidad</label>
-                    <select name="nuevo_estado" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-[#0E2F2A] focus:ring-[#0E2F2A]">
+                    <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Nuevo Estatus de Calidad</label>
+                    <select name="nuevo_estado" required class="block w-full rounded-none border-gray-300 shadow-sm p-2.5 text-sm uppercase border focus:ring-0 focus:border-[#0E2F2A] bg-white">
                         <option value="" disabled selected>-- ¿A dónde pasa? --</option>
                         {% for valor, etiqueta in estados %}
                             <option value="{{ valor }}">{{ etiqueta }}</option>
@@ -40,8 +45,9 @@
                 </div>
             </div>
 
-            <div class="flex justify-end pt-4 border-t border-gray-200">
-                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#0E2F2A] hover:bg-opacity-90">
+            <!-- Boton de accion -->
+            <div class="pt-4 border-t border-[#EDEDE2] mt-6 flex justify-end">
+                <button type="submit" class="bg-[#0E2F2A] text-white px-8 py-3 rounded-none font-bold text-sm uppercase tracking-wider hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors border border-transparent hover:border-[#0E2F2A]">
                     Aplicar Cambio y Actualizar
                 </button>
             </div>

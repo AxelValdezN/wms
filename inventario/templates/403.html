@@ -1,0 +1,24 @@
+{% extends 'inventario/base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-20 text-center">
+    
+    <div class="bg-white border-t-8 border-red-600 shadow-xl p-10 rounded-none">
+        
+        <div class="flex justify-center mb-6">
+            <svg class="h-20 w-20 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+        </div>
+
+        <h1 class="text-6xl font-bold text-red-600 mb-4 tracking-tighter">403</h1>
+        <h2 class="text-2xl font-bold text-[#000000] uppercase tracking-wider mb-2">Acceso Denegado</h2>
+        <p class="text-gray-600 font-medium mb-8 uppercase tracking-wide text-sm">Tu nivel de acceso actual (Rol Operativo) no te permite visualizar o modificar este módulo. Si crees que esto es un error, contacta al supervisor del Cedis.</p>
+        
+        <a href="{% url 'inventario:dashboard' %}" class="inline-block bg-[#0E2F2A] text-white px-8 py-3 rounded-none font-bold text-sm uppercase tracking-wider hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors border border-transparent hover:border-[#0E2F2A]">
+            Regresar al Dashboard
+        </a>
+    </div>
+    
+</div>
+{% endblock %}

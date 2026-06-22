@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 #genera automaticamente el campo id_articulo como PK
 class Articulo (models.Model):
     clave = models.CharField(max_length=50, unique=True)
@@ -27,7 +29,24 @@ class Localizacion(models.Model):
     estatus = models.BooleanField(default=True)
     def __str__(self):
         return f"{self.almacen} - {self.clave}"
-    
+
+class Lote(models.Model):
+    articulo = models.ForeignKey(Articulo, on_delete=models.RESTRICT)
+    clave = models.CharField(max_length=50) # El identificador alfanumérico del lote
+    fecha_caducidad = models.DateField(blank=True, null=True)
+    fecha_ingreso = models.DateTimeField(auto_now_add=True)
+    estatus = models.BooleanField(default=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['articulo', 'clave'],
+                name='unique_articulo_lote'
+            )
+        ]
+
+    def _str_(self):
+        return f"Lote {self.clave} | {self.articulo.clave}"    
 class Existencia(models.Model):
     ESTADO_CHOICES = [
         ('DISPONIBLE', 'Disponible para uso'),
@@ -36,7 +55,7 @@ class Existencia(models.Model):
     ]
     articulo = models.ForeignKey(Articulo, on_delete=models.RESTRICT)
     localizacion = models.ForeignKey(Localizacion, on_delete=models.RESTRICT)
-    lote = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='DISPONIBLE')
+    lote = models.ForeignKey(Lote, on_delete=models.RESTRICT)
     estado_calidad = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='DISPONIBLE')
     cantidad_actual = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     fecha_ultimo_movimiento = models.DateTimeField(auto_now=True)
@@ -56,7 +75,7 @@ class Entrada(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
     cliente = models.CharField(max_length=100)
     documento_referencia = models.CharField(max_length=100, blank=True, null=True)
-    usuario = models.CharField(max_length=100)
+    usuario = models.ForeignKey(User, on_delete=models.RESTRICT)
     estatus = models.BooleanField(default=True)
     def __str__(self):
         return f"Entrada {self.folio_entrada}"
@@ -65,8 +84,7 @@ class DetalleEntrada(models.Model):
     articulo = models.ForeignKey(Articulo, on_delete=models.RESTRICT)
     localizacion = models.ForeignKey(Localizacion, on_delete=models.RESTRICT)
     cantidad_recibida = models.DecimalField(max_digits=12, decimal_places=2)
-    lote = models.CharField(max_length=50, blank=True, null=True)
-    fecha_caducidad = models.DateField(blank=True, null=True)
+    lote = models.ForeignKey(Lote, on_delete=models.RESTRICT)
     def __str__(self):
         return f"{self.entrada.folio_entrada} de {self.articulo.clave}"
 class Movimiento(models.Model):
@@ -87,11 +105,11 @@ class Movimiento(models.Model):
     folio_referencia = models.CharField(max_length=50, blank=True, null=True)
     articulo = models.ForeignKey(Articulo, on_delete=models.RESTRICT)
     localizacion = models.ForeignKey(Localizacion, on_delete=models.RESTRICT)
-    lote = models.CharField(max_length=50, default='S/N')
+    lote = models.ForeignKey(Lote, on_delete=models.RESTRICT)
     estado_calidad = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='DISPONIBLE')
     cantidad_entrada = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     cantidad_salida = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    usuario = models.CharField(max_length=100)
+    usuario = models.ForeignKey(User, on_delete=models.RESTRICT)
     observaciones = models.TextField(blank=True, null=True)
    
     def __str__(self):
@@ -105,7 +123,7 @@ class OrdenSalida(models.Model):
     
     folio_salida = models.CharField(max_length=50, unique=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-    solicitante = models.CharField(max_length=100)
+    solicitante = models.ForeignKey(User, on_delete=models.RESTRICT, related_name='ordenes_solicitadas')
     asignado_a = models.CharField(max_length=100)
     destino = models.CharField(max_length=100)
     meta_total = models.DecimalField(max_digits=12, decimal_places=2)
@@ -118,7 +136,7 @@ class DetalleSalida(models.Model):
     orden = models.ForeignKey(OrdenSalida, on_delete=models.CASCADE, related_name='detalles')
     articulo = models.ForeignKey(Articulo, on_delete=models.RESTRICT)
     localizacion = models.ForeignKey(Localizacion, on_delete=models.RESTRICT)
-    lote = models.CharField(max_length=50)
+    lote = models.ForeignKey(Lote, on_delete=models.RESTRICT)
     cantidad_surtida = models.DecimalField(max_digits=12, decimal_places=2)
 
     def _str_(self):

@@ -4,49 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Path WMS-Corporativo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+    </style>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased">
-    <nav class="bg-gray-900 shadow-lg">
+<body class="bg-white text-[#000000] font-sans antialiased flex flex-col min-h-screen">
+    
+    <nav class="bg-[#0E2F2A] border-b-4 border-[#B8D700] print:hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
+                    <div class="flex-shrink-0 flex items-center mr-8">
                         <a href="{% url 'inventario:dashboard' %}" class="hover:opacity-80 transition-opacity">
-                            <span class="text-white font-bold text-xl tracking-wider">Path<span class="text-blue-500">-Inventario</span></span>
+                            <span class="text-white font-bold text-2xl tracking-tight uppercase">Path<span class="text-[#B8D700]">-Inventario</span></span>
                         </a>
                     </div>
-                    <!-- Botones del menú de navegación (NAVBAR) -->
-                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="{% url 'inventario:nueva_entrada' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                    
+                    <div class="hidden sm:flex sm:items-center sm:space-x-1">
+                        <a href="{% url 'inventario:nueva_entrada' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
                             Nuevas Entradas
                         </a>
-                        <a href="{% url 'inventario:crear_orden_salida' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                        <a href="{% url 'inventario:crear_orden_salida' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
                             Salida / Despacho
                         </a>
-                        <a href="{% url 'inventario:cambiar_estatus' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                        <a href="{% url 'inventario:cambiar_estatus' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
                             Cambiar Estatus
                         </a>
-                        {% if request.user.is_superuser or 'Supervisores' in request.user.groups.all %}
-                        <a href="{% url 'inventario:catalogo_articulos' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                        {% if request.user.is_superuser or perms.inventario.view_articulo %}
+                        <a href="{% url 'inventario:catalogo_articulos' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
                             Catálogo de Artículos
                         </a>
-                        <a href="{% url 'inventario:catalogo_localizaciones' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
+                        {% endif %}
+
+                        {% if request.user.is_superuser or perms.inventario.view_localizacion %}
+                        <a href="{% url 'inventario:catalogo_localizaciones' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
                             Catálogo de Localizaciones
                         </a>
-                        <a href="{% url 'inventario:bitacora' %}" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors">
-                            Bitácora de Movimientos
+                        {% endif %}
+
+                        {% if request.user.is_superuser or perms.inventario.view_movimiento %}
+                        <a href="{% url 'inventario:bitacora' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
+                            Bitácora
                         </a>
                         {% endif %}
                     </div>
                 </div>
+                
                 <div class="flex items-center space-x-4">
-                    <span class="text-sm font-medium text-gray-700">
+                    <span class="hidden sm:inline-block text-sm font-medium text-gray-300 uppercase tracking-wider">
                         {{ request.user.username | upper }}
                     </span>
-                    <form action="{% url 'logout' %}" method="post" class="inline">
+                    <form action="{% url 'logout' %}" method="post" class="inline m-0 p-0">
                         {% csrf_token %}
-                        <button type="submit" class="text-sm font-medium text-red-600 hover:text-red-800 transition-colors">
+                        <button type="submit" class="border-2 border-[#B8D700] text-[#B8D700] px-4 py-1.5 text-sm font-bold uppercase tracking-wider hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors">
                             Cerrar Sesión
                         </button>
                     </form>
@@ -54,41 +76,42 @@
             </div>
         </div>
     </nav>
-    <main>
-        <!-- Bloque exportado de diseño Tailwind para mostrar mensajes automaticos de django-->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-    {% if messages %}
-        {% for message in messages %}
-            {% if message.tags == 'error' %}
-                <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded shadow-sm mb-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                            </svg>
+
+    <main class="flex-grow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 print:hidden">
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded-none shadow-sm mb-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-bold uppercase tracking-wider text-red-800">{{ message }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-red-800">{{ message }}</p>
+                    {% else %}
+                        <div class="bg-[#EDEDE2] border-l-4 border-[#0E2F2A] p-4 rounded-none shadow-sm mb-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-[#0E2F2A]" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-bold uppercase tracking-wider text-[#0E2F2A]">{{ message }}</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            {% else %}
-                <div class="bg-green-50 border-l-4 border-[#0E2F2A] p-4 rounded shadow-sm mb-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-[#0E2F2A]" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-800">{{ message }}</p>
-                        </div>
-                    </div>
-                </div>
+                    {% endif %}
+                {% endfor %}
             {% endif %}
-        {% endfor %}
-    {% endif %}
-</div>
+        </div>
+
         {% block content %}
         {% endblock %}
     </main>

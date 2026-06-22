@@ -1,50 +1,54 @@
 {% extends 'inventario/base.html' %}
 {% block content %}
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-white">
     
-    <div class="mb-8 bg-white p-6 border border-gray-300 shadow-sm rounded-sm">
+    <div class="mb-8 bg-white p-8 border border-gray-300 border-t-4 border-t-[#0E2F2A] shadow-sm rounded-none">
         <div class="flex justify-between items-end mb-4">
             <div>
-                <h1 class="text-2xl font-bold text-[#0E2F2A] uppercase">Surtido de Orden: {{ orden.folio_salida }}</h1>
-                <p class="text-sm text-gray-600 mt-1 font-medium">Asignación: {{ orden.asignado_a }} | Destino Final: {{ orden.destino }}</p>
+                <h1 class="text-3xl font-bold text-[#000000] uppercase tracking-tight">Surtido de Orden: <span class="text-[#0E2F2A]">{{ orden.folio_salida }}</span></h1>
+                <p class="text-sm text-gray-500 mt-1 font-bold uppercase tracking-wider">Asignación: {{ orden.asignado_a }} | Destino Final: {{ orden.destino }}</p>
             </div>
             <div class="text-right">
-                <p class="text-xs text-gray-500 uppercase tracking-wide">Avance de Control (CC)</p>
-                <p class="text-xl font-bold text-[#0E2F2A] tracking-tight">
-                    {{ total_surtido }} / {{ orden.meta_total }}
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Avance de Control (CC)</p>
+                <p class="text-3xl font-bold text-[#0E2F2A] tracking-tight">
+                    {{ total_surtido }} <span class="text-gray-400 text-xl">/ {{ orden.meta_total }}</span>
                 </p>
             </div>
         </div>
         
-        <div class="w-full bg-gray-200 h-2 rounded-none overflow-hidden">
-            <div class="bg-[#0E2F2A] h-2 transition-all duration-500" style="width: {% widthratio total_surtido orden.meta_total 100 %}";></div>
+        <div class="w-full bg-[#EDEDE2] h-3 rounded-none overflow-hidden mt-6">
+            <div class="bg-[#B8D700] h-3 transition-all duration-500" style="width: {% widthratio total_surtido orden.meta_total 100 %}%;"></div>
         </div>
-        <p class="text-xs text-gray-500 mt-2 text-right">Faltan por clasificar: {{ faltante }} unidades</p>
+        <p class="text-xs font-bold text-gray-500 mt-2 text-right uppercase tracking-wider">Faltan por clasificar: <span class="text-red-600">{{ faltante }}</span> unidades</p>
     </div>
 
-    <h2 class="text-lg font-bold text-gray-800 mb-4 tracking-tight uppercase border-b border-gray-200 pb-2">Picking List Generado (Desglose PEPS)</h2>
-    <div class="bg-white shadow-sm border border-gray-300 overflow-hidden mb-10 rounded-sm">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100">
+    <h2 class="text-xl font-bold text-[#000000] mb-4 uppercase tracking-wider border-l-4 border-[#0E2F2A] pl-3 mt-10">
+        Picking List Generado <span class="text-gray-500 font-medium text-sm">(Desglose PEPS)</span>
+    </h2>
+    <div class="bg-white shadow-sm border border-gray-300 overflow-hidden mb-12 rounded-none">
+        <table class="min-w-full divide-y divide-[#EDEDE2]">
+            <thead class="bg-[#EDEDE2]">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Código de Artículo</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Ubicación Extraída</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Lote Asignado</th>
-                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Cantidad Surtida</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Código de Artículo</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Ubicación Extraída</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Lote Asignado</th>
+                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Cantidad Surtida</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-[#EDEDE2]">
                 {% for item in detalles %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ item.articulo.clave }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">{{ item.localizacion.clave }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">{{ item.lote }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-[#0E2F2A]">{{ item.cantidad_surtida }}</td>
+                <tr class="hover:bg-[#EDEDE2] transition-colors duration-150">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#000000] uppercase">{{ item.articulo.clave }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-bold uppercase">{{ item.localizacion.clave }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold uppercase">{{ item.lote }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-lg text-right font-bold text-[#0E2F2A]">{{ item.cantidad_surtida }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">El picking list se encuentra vacío. Solicita cantidades abajo.</td>
+                    <td colspan="4" class="px-6 py-12 text-center text-sm font-bold text-gray-500 uppercase tracking-wider bg-gray-50">
+                        El picking list se encuentra vacío. Selecciona mercancía abajo.
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -52,29 +56,39 @@
     </div>
 
     {% if orden.estatus != 'COMPLETADA' %}
-    <h2 class="text-lg font-bold text-gray-800 mb-4 tracking-tight uppercase border-b border-gray-200 pb-2">Selección de Artículos Activos con Stock</h2>
-    <div class="bg-white shadow-sm border border-gray-300 overflow-hidden rounded-sm">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-4 mt-10">
+        <h2 class="text-xl font-bold text-[#000000] uppercase tracking-wider border-l-4 border-[#0E2F2A] pl-3 mb-4 md:mb-0">
+            Mercancía Disponible (Surtido Automático PEPS)
+        </h2>
+        
+        <div class="w-full md:w-1/3">
+            <input type="text" id="buscadorArticulos" onkeyup="filtrarArticulos()" placeholder="Buscar SKU o Descripción..." 
+                   class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-2.5 uppercase font-bold text-[#000000] bg-white">
+        </div>
+    </div>
+
+    <div class="bg-white shadow-sm border border-gray-300 overflow-hidden rounded-none mb-10">
+        <table class="min-w-full divide-y divide-[#EDEDE2]" id="tablaArticulos">
+            <thead class="bg-[#EDEDE2]">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Descripción del Artículo</th>
-                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider">Acción de Extracción PEPS</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Descripción del Artículo</th>
+                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Acción de Extracción PEPS</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-[#EDEDE2]">
                 {% for art in articulos %}
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:bg-[#EDEDE2] transition-colors duration-150 fila-articulo">
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-bold text-gray-900">{{ art.clave }}</div>
-                        <div class="text-xs text-gray-500 mt-0.5">{{ art.descripcion }}</div>
+                        <div class="text-sm font-bold text-[#000000] uppercase">{{ art.clave }}</div>
+                        <div class="text-xs font-medium text-gray-600 mt-1 uppercase">{{ art.descripcion }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
                         <form method="POST" action="{% url 'inventario:ejecutar_surtido' orden.id %}" class="inline-flex items-center gap-3">
                             {% csrf_token %}
                             <input type="hidden" name="articulo_id" value="{{ art.id }}">
-                            <input type="number" name="cantidad" step="0.01" min="0.01" required placeholder="Cantidad Total"
-                                   class="w-32 rounded-sm border-gray-300 shadow-sm p-2 text-sm text-right focus:ring-[#0E2F2A] focus:border-[#0E2F2A]">
-                            <button type="submit" class="bg-[#0E2F2A] text-white px-4 py-2 rounded-sm text-xs font-bold hover:bg-opacity-90 transition-colors uppercase tracking-wider">
+                            <input type="number" name="cantidad" step="0.01" min="0.01" required placeholder="0.00"
+                                   class="w-32 rounded-none border-gray-300 shadow-sm p-2 text-sm text-right font-bold focus:ring-0 focus:border-[#0E2F2A]">
+                            <button type="submit" class="bg-[#0E2F2A] text-white px-6 py-2.5 rounded-none text-xs font-bold hover:bg-[#B8D700] hover:text-[#0E2F2A] border border-transparent hover:border-[#0E2F2A] transition-colors uppercase tracking-wider">
                                 Solicitar Despacho
                             </button>
                         </form>
@@ -87,4 +101,22 @@
     {% endif %}
 
 </div>
+
+<script>
+function filtrarArticulos() {
+    let input = document.getElementById("buscadorArticulos");
+    let filtro = input.value.toUpperCase();
+    let tabla = document.getElementById("tablaArticulos");
+    let filas = tabla.getElementsByClassName("fila-articulo");
+
+    for (let i = 0; i < filas.length; i++) {
+        let textoFila = filas[i].textContent || filas[i].innerText;
+        if (textoFila.toUpperCase().indexOf(filtro) > -1) {
+            filas[i].style.display = "";
+        } else {
+            filas[i].style.display = "none";
+        }
+    }
+}
+</script>
 {% endblock %}
