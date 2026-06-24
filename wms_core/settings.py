@@ -1,4 +1,5 @@
 import os
+import dj_database_url
 
 """
 Django settings for wms_core project.
@@ -77,14 +78,12 @@ WSGI_APPLICATION = 'wms_core.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'wms_pathlogistic',
-        'USER': 'postgres',
-        'PASSWORD': 'admin', 
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get(
+            'DATABASE_URL', 
+            'postgresql://tu_usuario:tu_password@localhost:5432/tu_base_de_datos'
+        )
+    )
 }
 
 
