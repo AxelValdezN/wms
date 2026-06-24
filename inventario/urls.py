@@ -13,4 +13,9 @@ urlpatterns = [
     path('bitacora/', views.bitacora_movimientos, name='bitacora'),
     path('salidas/nueva-orden/', views.crear_orden_salida, name='crear_orden_salida'),
     path('salidas/surtir/<int:orden_id>/', views.ejecutar_surtido, name='ejecutar_surtido'),
+    path('salidas/tally/nueva/', views.crear_tally_cabecera, name='crear_tally_cabecera'),
+    path('entradas/tally/nueva/', views.crear_tally_cabecera, name='crear_tally_cabecera'),
+    path('entradas/tally/<int:entrada_id>/detalles/', views.capturar_tally_detalles, name='capturar_tally_detalles'),
+    path('entradas/tally/<int:entrada_id>/imprimir/', views.imprimir_tally, name='imprimir_tally'),
+    path('auditoria/documentos/', views.centro_documentacion, name='centro_documentacion'),
 ]

@@ -5,128 +5,166 @@
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 </style>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-white" style="font-family: 'Space Grotesk', sans-serif;">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-[#F9F9F9]" style="font-family: 'Space Grotesk', sans-serif;">
     
-    <div class="mb-8 border-b-2 border-[#0E2F2A] pb-4 flex justify-between items-end">
+    <div class="mb-8 flex justify-between items-end">
         <div>
-            <h1 class="text-3xl font-bold text-[#000000] tracking-tight uppercase">Torre de Control</h1>
-            <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Métricas en tiempo real y estado general del almacén</p>
+            <h1 class="text-3xl font-bold text-[#0E2F2A] tracking-tight uppercase">Torre de Control</h1>
+            <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Centro de Operaciones en Tiempo Real</p>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         
-        <div class="bg-white border border-gray-300 border-t-4 border-t-[#0E2F2A] shadow-sm p-5 rounded-none flex flex-col justify-between">
-            <h3 class="text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-4">Flujo Operativo (Mes)</h3>
-            <div>
-                <div class="flex justify-between items-end mb-2">
-                    <span class="text-sm font-semibold text-gray-500 uppercase">Entradas</span>
+        <div class="bg-white border border-gray-200 p-6 flex flex-col justify-center">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Flujo Operativo (Mes)</h3>
+            <div class="space-y-2">
+                <div class="flex justify-between items-baseline">
+                    <span class="text-sm font-semibold text-gray-800 uppercase">Entradas</span>
                     <span class="text-2xl font-bold text-[#B8D700]">+{{ total_entradas }}</span>
                 </div>
-                <div class="flex justify-between items-end">
-                    <span class="text-sm font-semibold text-gray-500 uppercase">Salidas</span>
-                    <span class="text-2xl font-bold text-gray-800">-{{ total_salidas }}</span>
+                <div class="flex justify-between items-baseline">
+                    <span class="text-sm font-semibold text-gray-800 uppercase">Salidas</span>
+                    <span class="text-xl font-bold text-[#0E2F2A]">-{{ total_salidas }}</span>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white border border-gray-300 border-t-4 border-t-[#0E2F2A] shadow-sm p-5 rounded-none flex flex-col justify-between">
-            <h3 class="text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-4">Salud del Inventario</h3>
-            <div class="space-y-1">
-                <div class="flex justify-between items-center border-b border-[#EDEDE2] pb-1">
-                    <span class="text-xs font-semibold text-gray-600 uppercase">Disponible</span>
-                    <span class="text-lg font-bold text-[#000000]">{{ stock_disponible }}</span>
+        <div class="bg-white border border-gray-200 p-6 flex flex-col justify-center">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Salud del Inventario</h3>
+            <div class="space-y-2">
+                <div class="flex justify-between items-baseline">
+                    <span class="text-sm font-semibold text-gray-800 uppercase">Disponible</span>
+                    <span class="text-2xl font-bold text-[#000000]">{{ stock_disponible }}</span>
                 </div>
-                <div class="flex justify-between items-center border-b border-[#EDEDE2] pb-1">
-                    <span class="text-xs font-semibold text-gray-600 uppercase">Merma</span>
+                <div class="flex justify-between items-baseline">
+                    <span class="text-sm font-semibold text-red-600 uppercase">Merma</span>
                     <span class="text-sm font-bold text-red-600">{{ stock_merma }}</span>
                 </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-semibold text-gray-600 uppercase">Cuarentena</span>
-                    <span class="text-sm font-bold text-orange-500">{{ stock_cuarentena }}</span>
-                </div>
             </div>
         </div>
 
-        <div class="bg-white border border-gray-300 border-t-4 border-t-[#0E2F2A] shadow-sm p-5 rounded-none flex flex-col justify-between">
-            <h3 class="text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-4">Fulfillment / Surtido</h3>
-            <div class="flex flex-col items-center justify-center">
-                <span class="text-4xl font-bold {% if tasa_cumplimiento >= 90 %}text-[#B8D700]{% else %}text-[#0E2F2A]{% endif %}">
-                    {{ tasa_cumplimiento }}%
-                </span>
-                <span class="text-xs font-bold text-gray-500 uppercase mt-2">Órdenes Completadas</span>
-                <span class="text-xs font-medium text-gray-400 mt-1">{{ ordenes.completadas }} de {{ ordenes.total }} procesadas</span>
-            </div>
+        <div class="bg-white border border-gray-200 p-6 flex flex-col items-center justify-center text-center">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 w-full text-left">Fulfillment Rate</h3>
+            <span class="text-5xl font-bold tracking-tighter {% if tasa_cumplimiento >= 90 %}text-[#B8D700]{% else %}text-[#0E2F2A]{% endif %}">
+                {{ tasa_cumplimiento }}%
+            </span>
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">{{ ordenes.completadas }} de {{ ordenes.total }} Procesadas</span>
         </div>
 
-        <div class="bg-white border border-gray-300 border-t-4 border-t-[#0E2F2A] shadow-sm p-5 rounded-none flex flex-col justify-between">
-            <h3 class="text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-3">Top Volumen (SKUs)</h3>
-            <ul class="divide-y divide-[#EDEDE2] flex-grow flex flex-col justify-center">
-                {% for art in top_articulos %}
-                <li class="py-1.5 flex justify-between items-center">
-                    <span class="text-xs font-semibold text-gray-800 uppercase truncate pr-2">{{ art.articulo__clave }}</span>
-                    <span class="text-sm font-bold text-[#0E2F2A]">{{ art.total_stock }}</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        
+        <div class="lg:col-span-2 bg-white border border-gray-200 p-0 flex flex-col">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-sm font-bold text-[#0E2F2A] uppercase tracking-wider">Órdenes en Proceso</h3>
+                <span class="bg-[#EDEDE2] text-[#0E2F2A] text-xs font-bold px-2 py-1 uppercase">{{ ordenes_activas|length }} Pendientes</span>
+            </div>
+            
+            <ul class="divide-y divide-gray-100 flex-grow">
+                {% for orden in ordenes_activas %}
+                <li class="px-6 py-4 flex flex-col sm:flex-row justify-between items-center hover:bg-gray-50 transition-colors">
+                    <div class="mb-2 sm:mb-0">
+                        <span class="text-lg font-bold text-[#000000]">{{ orden.folio_salida }}</span>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mt-1">Destino: <span class="text-gray-800">{{ orden.destino }}</span></div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <span class="block text-xs font-semibold text-gray-500 uppercase">Estatus</span>
+                            <span class="block text-sm font-bold text-orange-600">{{ orden.estatus }}</span>
+                        </div>
+                        <a href="{% url 'inventario:ejecutar_surtido' orden.id %}" class="bg-[#0E2F2A] text-[#B8D700] px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-black transition-colors">
+                            Continuar Picking &rarr;
+                        </a>
+                    </div>
                 </li>
                 {% empty %}
-                <li class="text-xs text-gray-400 font-medium text-center italic">Sin datos de volumen</li>
+                <li class="px-6 py-10 flex flex-col items-center justify-center text-center">
+                    <span class="text-gray-400 font-medium text-sm uppercase tracking-wider">El andén está limpio. No hay órdenes pendientes.</span>
+                </li>
                 {% endfor %}
             </ul>
         </div>
 
-    </div>
-
-    <div class="mb-6 bg-white p-4 border border-gray-300 rounded-none shadow-sm">
-        <form method="GET" action="{% url 'inventario:dashboard' %}" class="flex flex-col sm:flex-row gap-3">
-            <div class="relative flex-1">
-                <input type="text" name="q" value="{{ query }}" placeholder="Buscar por clave, descripcion o rack..."
-                    class="w-full rounded-none border-gray-300 shadow-sm border p-2.5 text-sm font-normal uppercase focus:ring-[#0E2F2A] focus:border-[#0E2F2A]">
+        <div class="bg-white border border-gray-200 p-0 flex flex-col">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-sm font-bold text-[#0E2F2A] uppercase tracking-wider">Mayor Volumen Físico</h3>
             </div>
-            <div class="flex gap-2">
-                <button type="submit" class="bg-[#0E2F2A] text-white px-6 py-2.5 rounded-none font-bold text-sm hover:bg-black transition-colors uppercase tracking-wider">
-                    Filtrar Inventario
-                </button>
-                {% if query %}
-                    <a href="{% url 'inventario:dashboard' %}" class="border border-gray-300 text-[#000000] bg-[#EDEDE2] px-4 py-2.5 rounded-none font-bold text-sm flex items-center hover:bg-gray-200 uppercase tracking-wider transition-colors">
-                        Limpiar
-                    </a>
-                {% endif %}
-            </div>
-        </form>
-    </div>
-
-    <div class="overflow-hidden border border-gray-300 shadow-sm rounded-none">
-        <table class="min-w-full divide-y divide-gray-300">
-            <thead class="bg-[#EDEDE2]">
-                <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">SKU / Artículo</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Descripcion del articulo</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Ubicación (Rack)</th>
-                    <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Estado de Calidad</th>
-                    <th scope="col" class="px-6 py-3 text-right text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Total Piezas</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-[#EDEDE2]">
-                {% for item in inventario %}
-                <tr class="hover:bg-[#EDEDE2] transition-colors duration-150">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#000000]">{{ item.articulo__clave }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 uppercase truncate max-w-xs">{{ item.articulo__descripcion|default:"N/A" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{{ item.localizacion__clave|default:"Sin Rack" }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <span class="px-2 py-1 text-xs font-bold uppercase tracking-wider text-[#0E2F2A] bg-[#EDEDE2] border border-gray-300 rounded-none">
-                            {{ item.estado_calidad }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-lg text-right font-bold text-[#0E2F2A]">{{ item.total_piezas }}</td>
-                </tr>
+            <ul class="divide-y divide-gray-100 px-6 py-2 flex-grow flex flex-col justify-center">
+                {% for art in top_articulos %}
+                <li class="py-3 flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-800 uppercase truncate pr-4">{{ art.articulo__clave }}</span>
+                    <span class="text-base font-bold text-[#0E2F2A]">{{ art.total_stock }}</span>
+                </li>
                 {% empty %}
-                <tr>
-                    <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500 font-bold uppercase tracking-wider bg-gray-50">
-                        No hay mercancía con stock disponible en el almacén.
-                    </td>
-                </tr>
+                <li class="py-3 text-xs text-gray-400 font-medium text-center italic">Sin datos de volumen</li>
                 {% endfor %}
-            </tbody>
-        </table>
+            </ul>
+        </div>
+    </div>
+
+    <div class="bg-white border border-gray-200 shadow-sm overflow-hidden">
+        
+        <div class="p-4 border-b border-gray-200 bg-gray-50">
+            <form method="GET" action="{% url 'inventario:dashboard' %}" class="flex flex-col sm:flex-row gap-3 max-w-3xl">
+                <div class="relative flex-1">
+                    <input type="text" name="q" value="{{ query }}" placeholder="Buscar por clave, descripción o ubicación..."
+                        class="w-full bg-white border border-gray-300 p-2.5 text-sm font-medium uppercase placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#0E2F2A] focus:border-[#0E2F2A]">
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="bg-gray-800 text-white px-6 py-2.5 font-bold text-sm hover:bg-black transition-colors uppercase tracking-wider">
+                        Buscar
+                    </button>
+                    {% if query %}
+                        <a href="{% url 'inventario:dashboard' %}" class="bg-gray-200 text-gray-700 px-4 py-2.5 font-bold text-sm flex items-center hover:bg-gray-300 uppercase tracking-wider transition-colors">
+                            Limpiar
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        <div class="overflow-x-auto overflow-y-auto max-h-[500px] relative bg-white">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm outline outline-1 outline-gray-200">
+                    <tr>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Artículo</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Descripción</th>
+                        <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ubicación</th>
+                        <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Calidad</th>
+                        <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Piezas</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                    {% for item in inventario %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#0E2F2A]">{{ item.articulo__clave }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 uppercase truncate max-w-xs">{{ item.articulo__descripcion|default:"N/A" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">{{ item.localizacion__clave|default:"Sin Rack" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            {% if item.estado_calidad == 'DISPONIBLE' %}
+                                <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-none bg-green-100 text-green-800 uppercase tracking-wider">Disponible</span>
+                            {% elif item.estado_calidad == 'MERMA' %}
+                                <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-none bg-red-100 text-red-800 uppercase tracking-wider">Merma</span>
+                            {% elif item.estado_calidad == 'CUARENTENA' %}
+                                <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-none bg-yellow-100 text-yellow-800 uppercase tracking-wider">Cuarentena</span>
+                            {% else %}
+                                <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-none bg-gray-100 text-gray-800 uppercase tracking-wider">{{ item.estado_calidad }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-lg text-right font-bold text-[#0E2F2A]">{{ item.total_piezas }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-16 text-center">
+                            <span class="text-sm text-gray-400 font-bold uppercase tracking-wider">Almacén Vacío / Sin Resultados</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>

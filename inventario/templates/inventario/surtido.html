@@ -1,108 +1,159 @@
 {% extends 'inventario/base.html' %}
-{% block content %}
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-white">
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-[#F9F9F9]" style="font-family: 'Space Grotesk', sans-serif;">
     
-    <div class="mb-8 bg-white p-8 border border-gray-300 border-t-4 border-t-[#0E2F2A] shadow-sm rounded-none">
-        <div class="flex justify-between items-end mb-4">
-            <div>
-                <h1 class="text-3xl font-bold text-[#000000] uppercase tracking-tight">Surtido de Orden: <span class="text-[#0E2F2A]">{{ orden.folio_salida }}</span></h1>
-                <p class="text-sm text-gray-500 mt-1 font-bold uppercase tracking-wider">Asignación: {{ orden.asignado_a }} | Destino Final: {{ orden.destino }}</p>
+    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-gray-200 pb-4">
+        <div>
+            <h1 class="text-3xl font-bold text-[#0E2F2A] tracking-tight uppercase">Terminal de Surtido PEPS</h1>
+            <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Orden: <span class="font-bold text-[#000000]">{{ orden.folio_salida }}</span> | Destino: <span class="font-bold text-[#000000]">{{ orden.destino }}</span></p>
+        </div>
+        
+        {% if orden.estatus == 'COMPLETADA' %}
+            <a href="{% url 'inventario:picking_list' orden.folio_salida %}" class="bg-[#0E2F2A] text-[#B8D700] px-6 py-3 font-bold text-sm uppercase tracking-wider shadow-md hover:bg-black transition-colors flex items-center gap-2 border border-transparent hover:border-[#0E2F2A]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Imprimir Hoja de Picking
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-4 flex flex-col gap-6">
+            
+            <div class="bg-white border border-gray-200 shadow-sm rounded-none p-6">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2 mb-4">Métricas de Surtido</h3>
+                
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-sm font-bold text-gray-700 uppercase">Avance Total</span>
+                    <div class="text-right">
+                        <span class="text-3xl font-black text-[#0E2F2A] tracking-tighter">{{ total_surtido }}</span>
+                        <span class="text-sm font-bold text-gray-400">/ {{ orden.meta_total }}</span>
+                    </div>
+                </div>
+                
+                <div class="w-full bg-gray-100 h-2 mt-2">
+                    <div class="bg-[#B8D700] h-2 transition-all duration-500" style="width: {% widthratio total_surtido orden.meta_total 100 %}%;"></div>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Faltante por procesar:</span>
+                    <span class="text-sm font-black {% if faltante > 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                        {{ faltante }} Unidades
+                    </span>
+                </div>
             </div>
-            <div class="text-right">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Avance de Control (CC)</p>
-                <p class="text-3xl font-bold text-[#0E2F2A] tracking-tight">
-                    {{ total_surtido }} <span class="text-gray-400 text-xl">/ {{ orden.meta_total }}</span>
+
+            <div class="bg-white border border-gray-200 shadow-sm rounded-none flex flex-col flex-grow">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-[#0E2F2A] uppercase tracking-widest">Desglose de Lotes Asignados</h3>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">{{ detalles|length }} Movimientos</span>
+                </div>
+                
+                <div class="overflow-y-auto max-h-[400px]">
+                    <ul class="divide-y divide-gray-100">
+                        {% for item in detalles %}
+                        <li class="p-4 hover:bg-gray-50 transition-colors">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-sm font-black text-[#0E2F2A] uppercase">{{ item.articulo.clave }}</span>
+                                <span class="text-sm font-black text-[#B8D700] bg-[#0E2F2A] px-2 py-0.5">{{ item.cantidad_surtida }}</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Rack: <span class="text-gray-900">{{ item.localizacion.clave }}</span></span>
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Lote: {{ item.lote }}</span>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="p-8 text-center">
+                            <span class="block text-xs font-bold text-gray-400 uppercase tracking-widest leading-relaxed">Aún no se ha extraído mercancía.</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="lg:col-span-8">
+            {% if orden.estatus != 'COMPLETADA' %}
+            
+            <div class="bg-white border border-gray-200 shadow-sm rounded-none h-full flex flex-col">
+                
+                <div class="bg-gray-50 p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <h3 class="text-sm font-bold text-[#0E2F2A] uppercase tracking-wider hidden sm:block w-1/3">Directorio de Stock Disponible</h3>
+                    <div class="relative w-full sm:w-2/3">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" id="buscadorArticulos" onkeyup="filtrarArticulos()" placeholder="BUSCAR POR SKU O DESCRIPCIÓN..." 
+                               class="w-full pl-10 rounded-none border border-gray-300 p-2.5 text-xs font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-white transition-colors">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto overflow-y-auto max-h-[600px] flex-grow relative">
+                    <table class="min-w-full divide-y divide-gray-200" id="tablaArticulos">
+                        <thead class="bg-white sticky top-0 z-10 shadow-sm outline outline-1 outline-gray-200">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-widest w-1/3">SKU y Descripción</th>
+                                <th scope="col" class="px-4 py-3 text-center text-[10px] font-bold text-gray-500 uppercase tracking-widest">Stock Real (Total)</th>
+                                <th scope="col" class="px-6 py-3 text-right text-[10px] font-bold text-gray-500 uppercase tracking-widest">Extracción (Unidades)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            {% for art in articulos %}
+                            <tr class="hover:bg-gray-50 transition-colors fila-articulo">
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-black text-[#0E2F2A] uppercase">{{ art.clave }}</div>
+                                    <div class="text-[10px] font-bold text-gray-500 mt-1 uppercase tracking-wide truncate max-w-[200px]" title="{{ art.descripcion }}">{{ art.descripcion }}</div>
+                                </td>
+                                
+                                <td class="px-4 py-4 text-center">
+                                    <div class="inline-block bg-[#EDEDE2] border border-gray-300 px-3 py-1">
+                                        <span class="text-sm font-black text-green-700">{{ art.stock_real_disponible }}</span>
+                                    </div>
+                                </td>
+                                
+                                <td class="px-6 py-4 text-right">
+                                    <form method="POST" action="{% url 'inventario:ejecutar_surtido' orden.id %}" class="flex items-center justify-end gap-2">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="articulo_id" value="{{ art.id }}">
+                                        
+                                        <div class="relative w-24">
+                                            <input type="number" name="cantidad" step="0.01" min="0.01" max="{{ art.stock_real_disponible }}" required placeholder="0.00"
+                                                   class="w-full rounded-none border border-gray-300 p-2 text-sm text-right font-bold text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-white">
+                                        </div>
+                                        
+                                        <button type="submit" class="bg-[#0E2F2A] text-white px-4 py-2 rounded-none text-xs font-bold hover:bg-[#B8D700] hover:text-[#0E2F2A] border border-transparent hover:border-[#0E2F2A] transition-colors uppercase tracking-wider" title="Asignar PEPS">
+                                            Añadir
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            {% else %}
+            <div class="bg-[#0E2F2A] border border-[#1A453F] shadow-sm rounded-none h-full flex flex-col items-center justify-center p-12 text-center">
+                <div class="w-20 h-20 bg-[#B8D700] rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <svg class="w-10 h-10 text-[#0E2F2A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h2 class="text-2xl font-black text-white uppercase tracking-wider mb-2">Surtido Completado al 100%</h2>
+                <p class="text-sm font-medium text-gray-300 uppercase tracking-widest max-w-md mx-auto leading-relaxed">
+                    La Cantidad de Control (CC) de {{ orden.meta_total }} unidades ha sido alcanzada. El motor PEPS ha finalizado la asignación. Proceda a imprimir la hoja física.
                 </p>
             </div>
-        </div>
-        
-        <div class="w-full bg-[#EDEDE2] h-3 rounded-none overflow-hidden mt-6">
-            <div class="bg-[#B8D700] h-3 transition-all duration-500" style="width: {% widthratio total_surtido orden.meta_total 100 %}%;"></div>
-        </div>
-        <p class="text-xs font-bold text-gray-500 mt-2 text-right uppercase tracking-wider">Faltan por clasificar: <span class="text-red-600">{{ faltante }}</span> unidades</p>
-    </div>
-
-    <h2 class="text-xl font-bold text-[#000000] mb-4 uppercase tracking-wider border-l-4 border-[#0E2F2A] pl-3 mt-10">
-        Picking List Generado <span class="text-gray-500 font-medium text-sm">(Desglose PEPS)</span>
-    </h2>
-    <div class="bg-white shadow-sm border border-gray-300 overflow-hidden mb-12 rounded-none">
-        <table class="min-w-full divide-y divide-[#EDEDE2]">
-            <thead class="bg-[#EDEDE2]">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Código de Artículo</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Ubicación Extraída</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Lote Asignado</th>
-                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Cantidad Surtida</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-[#EDEDE2]">
-                {% for item in detalles %}
-                <tr class="hover:bg-[#EDEDE2] transition-colors duration-150">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#000000] uppercase">{{ item.articulo.clave }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-bold uppercase">{{ item.localizacion.clave }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold uppercase">{{ item.lote }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-lg text-right font-bold text-[#0E2F2A]">{{ item.cantidad_surtida }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="px-6 py-12 text-center text-sm font-bold text-gray-500 uppercase tracking-wider bg-gray-50">
-                        El picking list se encuentra vacío. Selecciona mercancía abajo.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    {% if orden.estatus != 'COMPLETADA' %}
-    <div class="flex flex-col md:flex-row md:items-end justify-between mb-4 mt-10">
-        <h2 class="text-xl font-bold text-[#000000] uppercase tracking-wider border-l-4 border-[#0E2F2A] pl-3 mb-4 md:mb-0">
-            Mercancía Disponible (Surtido Automático PEPS)
-        </h2>
-        
-        <div class="w-full md:w-1/3">
-            <input type="text" id="buscadorArticulos" onkeyup="filtrarArticulos()" placeholder="Buscar SKU o Descripción..." 
-                   class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-2.5 uppercase font-bold text-[#000000] bg-white">
+            {% endif %}
+            
         </div>
     </div>
-
-    <div class="bg-white shadow-sm border border-gray-300 overflow-hidden rounded-none mb-10">
-        <table class="min-w-full divide-y divide-[#EDEDE2]" id="tablaArticulos">
-            <thead class="bg-[#EDEDE2]">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Descripción del Artículo</th>
-                    <th class="px-6 py-3 text-right text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Acción de Extracción PEPS</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-[#EDEDE2]">
-                {% for art in articulos %}
-                <tr class="hover:bg-[#EDEDE2] transition-colors duration-150 fila-articulo">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-bold text-[#000000] uppercase">{{ art.clave }}</div>
-                        <div class="text-xs font-medium text-gray-600 mt-1 uppercase">{{ art.descripcion }}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <form method="POST" action="{% url 'inventario:ejecutar_surtido' orden.id %}" class="inline-flex items-center gap-3">
-                            {% csrf_token %}
-                            <input type="hidden" name="articulo_id" value="{{ art.id }}">
-                            <input type="number" name="cantidad" step="0.01" min="0.01" required placeholder="0.00"
-                                   class="w-32 rounded-none border-gray-300 shadow-sm p-2 text-sm text-right font-bold focus:ring-0 focus:border-[#0E2F2A]">
-                            <button type="submit" class="bg-[#0E2F2A] text-white px-6 py-2.5 rounded-none text-xs font-bold hover:bg-[#B8D700] hover:text-[#0E2F2A] border border-transparent hover:border-[#0E2F2A] transition-colors uppercase tracking-wider">
-                                Solicitar Despacho
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% endif %}
 
 </div>
 
 <script>
+// Script de búsqueda en tiempo real
 function filtrarArticulos() {
     let input = document.getElementById("buscadorArticulos");
     let filtro = input.value.toUpperCase();

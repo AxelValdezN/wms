@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,100 +20,123 @@
         }
     </script>
 </head>
-<body class="bg-white text-[#000000] font-sans antialiased flex flex-col min-h-screen">
+<body class="bg-[#F9F9F9] text-[#000000] font-sans antialiased flex h-screen overflow-hidden">
     
-    <nav class="bg-[#0E2F2A] border-b-4 border-[#B8D700] print:hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center mr-8">
-                        <a href="{% url 'inventario:dashboard' %}" class="hover:opacity-80 transition-opacity">
-                            <span class="text-white font-bold text-2xl tracking-tight uppercase">Path<span class="text-[#B8D700]">-Inventario</span></span>
-                        </a>
-                    </div>
-                    
-                    <div class="hidden sm:flex sm:items-center sm:space-x-1">
-                        <a href="{% url 'inventario:nueva_entrada' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
-                            Nuevas Entradas
-                        </a>
-                        <a href="{% url 'inventario:crear_orden_salida' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
-                            Salida / Despacho
-                        </a>
-                        <a href="{% url 'inventario:cambiar_estatus' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
-                            Cambiar Estatus
-                        </a>
-                        {% if request.user.is_superuser or perms.inventario.view_articulo %}
-                        <a href="{% url 'inventario:catalogo_articulos' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
-                            Catálogo de Artículos
-                        </a>
-                        {% endif %}
-
-                        {% if request.user.is_superuser or perms.inventario.view_localizacion %}
-                        <a href="{% url 'inventario:catalogo_localizaciones' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
-                            Catálogo de Localizaciones
-                        </a>
-                        {% endif %}
-
-                        {% if request.user.is_superuser or perms.inventario.view_movimiento %}
-                        <a href="{% url 'inventario:bitacora' %}" class="px-4 py-2 text-sm font-semibold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
-                            Bitácora
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    <span class="hidden sm:inline-block text-sm font-medium text-gray-300 uppercase tracking-wider">
-                        {{ request.user.username | upper }}
-                    </span>
-                    <form action="{% url 'logout' %}" method="post" class="inline m-0 p-0">
-                        {% csrf_token %}
-                        <button type="submit" class="border-2 border-[#B8D700] text-[#B8D700] px-4 py-1.5 text-sm font-bold uppercase tracking-wider hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors">
-                            Cerrar Sesión
-                        </button>
-                    </form>
-                </div>
-            </div>
+    <aside class="w-72 bg-[#0E2F2A] flex flex-col shadow-2xl z-20 print:hidden flex-shrink-0">
+        
+        <div class="h-20 flex items-center px-8 border-b border-[#1A453F]">
+            <a href="{% url 'inventario:dashboard' %}" class="hover:opacity-80 transition-opacity">
+                <span class="text-white font-bold text-2xl tracking-tight uppercase">Path<span class="text-[#B8D700]">-WMS</span></span>
+            </a>
         </div>
-    </nav>
+        
+        <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1">
+            
+            <a href="{% url 'inventario:dashboard' %}" class="flex items-center px-4 py-3 text-sm font-bold text-white hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider mb-4">
+                <svg class="w-5 h-5 mr-3 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                Torre de Control
+            </a>
 
-    <main class="flex-grow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 print:hidden">
+            <div class="px-4 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 mt-2">Operación en Andén</div>
+            
+            <a href="{% url 'inventario:nueva_entrada' %}" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                Recepción Express
+            </a>
+
+            <a href="{% url 'inventario:crear_tally_cabecera' %}" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                Recibo Ciego (Tally)
+            </a>
+
+            <a href="{% url 'inventario:crear_orden_salida' %}" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                Despacho / Salidas
+            </a>
+            <a href="{% url 'inventario:cambiar_estatus' %}" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Liberar Calidad
+            </a>
+
+            {% if request.user.is_superuser or perms.inventario.view_articulo or perms.inventario.view_localizacion %}
+            <div class="px-4 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 mt-8">Base de Datos</div>
+            
+                {% if request.user.is_superuser or perms.inventario.view_articulo %}
+                <a href="{% url 'inventario:catalogo_articulos' %}" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
+                    Catálogo SKUs
+                </a>
+                {% endif %}
+
+                {% if request.user.is_superuser or perms.inventario.view_localizacion %}
+                <a href="{% url 'inventario:catalogo_localizaciones' %}" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
+                    Racks & Layout
+                </a>
+                {% endif %}
+            {% endif %}
+
+            {% if request.user.is_superuser or perms.inventario.view_movimiento %}
+            <div class="px-4 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 mt-8">Auditoría</div>
+            <a href="{% url 'inventario:bitacora' %}" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                Bitácora Global
+            </a>
+            {% endif %}
+            
+            {% if request.user.is_superuser or "Supervisor" in request.user.groups.all.0.name or request.user.groups.all.1.name %}
+            <div class="px-4 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 mt-4">Auditoría de Planta</div>
+            <a href="{% url 'inventario:centro_documentacion' %}" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-300 hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Historial Docs
+            </a>
+            {% endif %}
+
+        </nav>
+
+        <div class="p-6 border-t border-[#1A453F] bg-[#0A221E]">
+            <div class="mb-3">
+                <span class="block text-xs font-medium text-gray-400 uppercase tracking-wider">Operador Activo</span>
+                <span class="block text-sm font-bold text-white uppercase truncate">{{ request.user.username }}</span>
+            </div>
+            <form action="{% url 'logout' %}" method="post" class="m-0 p-0">
+                {% csrf_token %}
+                <button type="submit" class="w-full border border-gray-500 text-gray-300 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-red-500 hover:text-white hover:bg-red-600 transition-colors text-center">
+                    Cerrar Sesión
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden bg-[#F9F9F9]">
+        
+        <main class="flex-1 overflow-y-auto p-6 lg:p-10">
+            
             {% if messages %}
+                <div class="max-w-7xl mx-auto mb-6">
                 {% for message in messages %}
                     {% if message.tags == 'error' %}
-                        <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded-none shadow-sm mb-4">
+                        <div class="bg-white border-l-4 border-red-600 p-4 shadow-sm mb-4">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm font-bold uppercase tracking-wider text-red-800">{{ message }}</p>
-                                </div>
+                                <svg class="h-5 w-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <p class="ml-3 text-sm font-bold uppercase tracking-wider text-red-800">{{ message }}</p>
                             </div>
                         </div>
                     {% else %}
-                        <div class="bg-[#EDEDE2] border-l-4 border-[#0E2F2A] p-4 rounded-none shadow-sm mb-4">
+                        <div class="bg-white border-l-4 border-[#0E2F2A] p-4 shadow-sm mb-4">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-[#0E2F2A]" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm font-bold uppercase tracking-wider text-[#0E2F2A]">{{ message }}</p>
-                                </div>
+                                <svg class="h-5 w-5 text-[#0E2F2A] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <p class="ml-3 text-sm font-bold uppercase tracking-wider text-[#0E2F2A]">{{ message }}</p>
                             </div>
                         </div>
                     {% endif %}
                 {% endfor %}
+                </div>
             {% endif %}
-        </div>
 
-        {% block content %}
-        {% endblock %}
-    </main>
+            {% block content %}
+            {% endblock %}
+
+        </main>
+    </div>
+
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso | Path Logistics</title>
+    <title>Acceso | Path Logistics WMS</title>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
@@ -21,45 +21,79 @@
         }
     </script>
 </head>
-<body class="bg-[#EDEDE2] flex items-center justify-center h-screen font-sans antialiased">
-    
-    <div class="bg-white p-10 shadow-xl rounded-none w-full max-w-md border-t-8 border-[#0E2F2A]">
+<body class="font-sans antialiased bg-white text-[#000000]">
+
+    <div class="min-h-screen flex">
         
-        <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold text-[#000000] tracking-tight uppercase">Path<span class="text-[#B8D700]">Logistics</span></h2>
-            <p class="text-gray-500 mt-2 text-xs uppercase tracking-widest font-bold">& Copacker | WMS Corporativo</p>
-        </div>
-
-        {% if form.errors %}
-            <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded-none shadow-sm mb-6 flex items-center">
-                <svg class="h-5 w-5 text-red-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                </svg>
-                <p class="ml-3 text-xs font-bold uppercase tracking-wider text-red-800">Credenciales inválidas.</p>
-            </div>
-        {% endif %}
-
-        <form method="post" class="space-y-6">
-            {% csrf_token %}
-            <div>
-                <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Identificador de Usuario</label>
-                <input type="text" name="username" required autofocus 
-                       class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-3 font-bold text-[#000000]">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Contraseña</label>
-                <input type="password" name="password" required 
-                       class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-3 font-bold text-[#000000]">
-            </div>
+        <div class="hidden lg:flex lg:w-1/2 bg-[#0E2F2A] relative flex-col justify-between p-12 border-r-8 border-[#B8D700]">
+            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#B8D700 2px, transparent 2px); background-size: 32px 32px;"></div>
             
-            <button type="submit" class="w-full mt-4 flex justify-center py-3 px-4 border border-transparent rounded-none shadow-sm text-sm font-bold text-white bg-[#0E2F2A] hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider">
-                Ingresar al andén
-            </button>
-        </form>
+            <div class="relative z-10">
+                <h1 class="text-5xl font-black text-white tracking-tighter uppercase mb-2">Path<span class="text-[#B8D700]">Logistics</span></h1>
+                <div class="h-1 w-16 bg-[#B8D700] mb-6"></div>
+                <p class="text-lg font-medium text-gray-300 uppercase tracking-widest leading-relaxed max-w-md">
+                    Warehouse Management System<br>
+                    <span class="text-sm text-gray-400">& Copacker Operations</span>
+                </p>
+            </div>
 
-        <div class="mt-8 text-center text-xs font-medium text-gray-400 uppercase tracking-wider border-t border-[#EDEDE2] pt-4">
-            &copy; 2026 Path Logistics<br>Acceso auditado y monitoreado
+            <div class="relative z-10">
+                <div class="border-l-2 border-[#B8D700] pl-4">
+                    <p class="text-sm font-bold text-white uppercase tracking-wider">Motor PEPS Activo</p>
+                    <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">Trazabilidad Total & Control de Calidad</p>
+                </div>
+            </div>
         </div>
+
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 bg-[#F9F9F9]">
+            <div class="w-full max-w-md bg-white p-10 border border-gray-200 shadow-xl">
+                
+                <div class="lg:hidden text-center mb-10 border-b-4 border-[#0E2F2A] pb-6">
+                    <h2 class="text-4xl font-black text-[#000000] tracking-tighter uppercase">Path<span class="text-[#0E2F2A]">-WMS</span></h2>
+                </div>
+
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-[#0E2F2A] uppercase tracking-tight">Acceso Operativo</h2>
+                    <p class="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">Ingrese sus credenciales de auditoría</p>
+                </div>
+
+                {% if form.errors %}
+                    <div class="bg-red-50 border-l-4 border-red-600 p-4 mb-8 flex items-center shadow-sm">
+                        <svg class="h-5 w-5 text-red-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="ml-3 text-xs font-bold uppercase tracking-wider text-red-800">Credenciales inválidas.</p>
+                    </div>
+                {% endif %}
+
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-widest mb-2">Identificador de Usuario</label>
+                        <input type="text" name="username" required autofocus 
+                               class="w-full rounded-none border border-gray-300 p-3 text-sm font-bold text-[#0E2F2A] uppercase focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-widest mb-2">Contraseña de Bóveda</label>
+                        <input type="password" name="password" required 
+                               class="w-full rounded-none border border-gray-300 p-3 text-sm font-bold text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                    </div>
+                    
+                    <div class="pt-4 mt-2">
+                        <button type="submit" class="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-none shadow-md text-sm font-bold text-[#B8D700] bg-[#0E2F2A] hover:bg-black transition-colors uppercase tracking-widest">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                            Desbloquear Terminal
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-10 pt-6 border-t border-gray-100 flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    <span>&copy; {% now "Y" %} Path Logistics</span>
+                    <span>Acceso Auditado</span>
+                </div>
+            </div>
+        </div>
+        
     </div>
 
 </body>

@@ -71,14 +71,60 @@ class Existencia(models.Model):
         return f"{self.articulo.clave} | Lote: {self.lote} | {self.estado_calidad} | {self.cantidad_actual}"
 
 class Entrada(models.Model):
-    folio_entrada = models.CharField(max_length=50, unique=True)
-    fecha = models.DateTimeField(auto_now_add=True)
-    cliente = models.CharField(max_length=100)
-    documento_referencia = models.CharField(max_length=100, blank=True, null=True)
+    TIPO_DESCARGA_CHOICES = [
+        ('GRANEL', 'Granel'),
+        ('PALETIZADO', 'Paletizado'),
+        ('MANIOBRA', 'Maniobra'),
+        ('OTROS', 'Otros'),
+    ]
+    TIPO_TRANSPORTE_CHOICES = [
+        ('TRAILER', 'Tráiler'),
+        ('TORTON', 'Torton'),
+        ('RABON', 'Rabón'),
+        ('CAM_35', 'Camioneta 3.5'),
+        ('OTROS', 'Otros'),
+    ]
+
+    # Identificación logística
+    folio_entrada = models.CharField(max_length=50, unique=True) # Folio Azul
+    cliente = models.CharField(max_length=100) 
+    cortina = models.CharField(max_length=20, blank=True, null=True) # Ej. Rampa 1
+    
+    # Documentos Referenciados 
+    documento_referencia = models.CharField(max_length=100, blank=True, null=True) # INVOICE
+    orden_referencia = models.CharField(max_length=100, blank=True, null=True) # ORDER
+    ro_po = models.CharField(max_length=100, blank=True, null=True) # RO / PO
+    pedimento = models.CharField(max_length=100, blank=True, null=True) 
+    
+    # datos de Vehículo y Operador 
+    transporte_linea = models.CharField(max_length=150, blank=True, null=True)
+    nombre_chofer = models.CharField(max_length=150, blank=True, null=True)
+    tipo_transporte = models.CharField(max_length=20, choices=TIPO_TRANSPORTE_CHOICES, default='TRAILER')
+    placas_tractor = models.CharField(max_length=50, blank=True, null=True)
+    placas_caja = models.CharField(max_length=50, blank=True, null=True)
+    numero_economico = models.CharField(max_length=50, blank=True, null=True) # ECONÓMICO
+    sellos_seguridad = models.CharField(max_length=150, blank=True, null=True)
+    
+    # maniobra y Tiempos operativos
+    tipo_descarga = models.CharField(max_length=20, choices=TIPO_DESCARGA_CHOICES, default='PALETIZADO')
+    fecha_maniobra = models.DateField(blank=True, null=True) # Fecha física de operación
+    hora_llegada = models.TimeField(blank=True, null=True)
+    hora_termino = models.TimeField(blank=True, null=True)
+    fecha = models.DateTimeField(auto_now_add=True) # Estampa del sistema inmutable
+    
+    # cierre Total y Auditoría 
+    total_piezas_final = models.DecimalField(max_digits=12, decimal_places=2, default=0) # El gran total calculado
+    supervisor_turno = models.CharField(max_length=100, blank=True, null=True) # Firma M. Pedraza
+    observaciones = models.TextField(blank=True, null=True) # Recuadro inferior
+    piezas_esperadas = models.DecimalField(max_digits=12, decimal_places=2, default=0) # El número dictado por el documento
+    total_piezas_final = models.DecimalField(max_digits=12, decimal_places=2, default=0) # Lo que el operador realmente contó
+    
     usuario = models.ForeignKey(User, on_delete=models.RESTRICT)
     estatus = models.BooleanField(default=True)
+
     def __str__(self):
-        return f"Entrada {self.folio_entrada}"
+        return f"Recibo {self.folio_entrada} - {self.cliente}"
+    
 class DetalleEntrada(models.Model):
     entrada = models.ForeignKey(Entrada, on_delete=models.CASCADE, related_name='detalles')
     articulo = models.ForeignKey(Articulo, on_delete=models.RESTRICT)

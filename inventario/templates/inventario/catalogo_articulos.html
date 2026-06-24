@@ -1,103 +1,125 @@
 {% extends 'inventario/base.html' %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-white">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-[#F9F9F9]" style="font-family: 'Space Grotesk', sans-serif;">
     
-    <div class="mb-8 border-b-2 border-[#0E2F2A] pb-4 flex justify-between items-end">
+    <div class="mb-6 flex justify-between items-end border-b border-gray-200 pb-4">
         <div>
-            <h1 class="text-3xl font-bold text-[#000000] tracking-tight uppercase">Catálogo de Artículos</h1>
-            <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Gestión de datos maestros de mercancía</p>
+            <h1 class="text-3xl font-bold text-[#0E2F2A] tracking-tight uppercase">Catálogo de SKUs</h1>
+            <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Gestión de datos maestros, familias y rotación</p>
         </div>
     </div>
 
-    <div class="bg-white border border-gray-300 border-t-4 border-t-[#0E2F2A] shadow-sm p-8 mb-10 rounded-none">
-        <h2 class="text-lg font-bold text-[#0E2F2A] mb-6 border-b border-[#EDEDE2] pb-2 uppercase tracking-wider">Registrar nuevo Artículo</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <form action="{% url 'inventario:catalogo_articulos' %}" method="POST" class="space-y-6">
-            {% csrf_token %}
+        <div class="lg:col-span-4">
+            <div class="bg-white border border-gray-200 shadow-sm rounded-none sticky top-6">
+                
+                <div class="bg-[#0E2F2A] px-6 py-4 border-b-4 border-[#B8D700]">
+                    <h2 class="text-white text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Alta de Artículo
+                    </h2>
+                </div>
+
+                <form action="{% url 'inventario:catalogo_articulos' %}" method="POST" class="p-6 space-y-5">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Clave / SKU</label>
+                        <input type="text" name="clave" required placeholder="EJ. ART-001"
+                               class="w-full rounded-none border border-gray-300 p-2.5 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Descripción Técnica</label>
+                        <input type="text" name="descripcion" required placeholder="EJ. CAJA DE CARTÓN CORRUGADO"
+                               class="w-full rounded-none border border-gray-300 p-2.5 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">U. Medida</label>
+                            <input type="text" name="unidad_medida" required placeholder="EJ. PZAS" 
+                                   class="w-full rounded-none border border-gray-300 p-2.5 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Familia</label>
+                            <input type="text" name="familia" required placeholder="EJ. EMPAQUE"
+                                   class="w-full rounded-none border border-gray-300 p-2.5 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Clasificación ABC (Rotación)</label>
+                        <select name="clasificacion" required class="w-full rounded-none border border-gray-300 p-2.5 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors cursor-pointer">
+                            <option value="" disabled selected>-- SELECCIONAR --</option>
+                            {% for valor, etiqueta in clasificaciones %}
+                            <option value="{{ valor }}">{{ etiqueta }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="pt-4 mt-2">
+                        <button type="submit" class="w-full bg-[#0E2F2A] text-[#B8D700] px-6 py-3.5 rounded-none font-bold text-sm uppercase tracking-wider hover:bg-black transition-colors shadow-sm border border-transparent hover:border-[#0E2F2A]">
+                            Registrar SKU
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8">
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="col-span-1">
-                    <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Clave del Artículo</label>
-                    <input type="text" name="clave" required 
-                           class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-2.5 uppercase font-bold text-[#000000]">
+            <div class="bg-white border border-gray-200 shadow-sm rounded-none flex flex-col h-full">
+                
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="text-sm font-bold text-[#0E2F2A] uppercase tracking-wider flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                        Directorio Activo
+                    </h3>
+                    <span class="bg-[#EDEDE2] text-[#0E2F2A] text-xs font-bold px-3 py-1 uppercase">{{ articulos.count }} SKUs Registrados</span>
                 </div>
-                <div class="col-span-1 md:col-span-2">
-                    <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Descripción del Artículo</label>
-                    <input type="text" name="descripcion" required 
-                           class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-2.5 uppercase">
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Unidad de Medida</label>
-                    <input type="text" name="unidad_medida" required 
-                           placeholder="Ej: PIEZAS, CAJAS, LITROS" 
-                           class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-2.5 uppercase">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Familia</label>
-                    <input type="text" name="familia" required  
-                           class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-2.5 uppercase">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Rotación (Clasificación ABC)</label>
-                    <select name="clasificacion" required
-                            class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-2.5 uppercase bg-white">
-                        <option value="" disabled selected>-- Selecciona --</option>
-                        {% for valor, etiqueta in clasificaciones %}
-                        <option value="{{ valor }}">{{ etiqueta }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
 
-            <div class="pt-4 border-t border-[#EDEDE2] mt-6 flex justify-end">
-                <button type="submit" class="bg-[#0E2F2A] text-white px-8 py-3 rounded-none font-bold text-sm uppercase tracking-wider hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors border border-transparent hover:border-[#0E2F2A]">
-                    Guardar en el catálogo
-                </button>
+                <div class="overflow-x-auto flex-grow">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-white">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Clave</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Descripción</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Familia</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-widest">Rotación</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            {% for articulo in articulos %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-black text-[#0E2F2A]">{{ articulo.clave }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-bold text-gray-800 uppercase">{{ articulo.descripcion }}</div>
+                                    <div class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">MEDIDA: {{ articulo.unidad_medida }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold uppercase">{{ articulo.familia }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center"> 
+                                    <span class="px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-[#0E2F2A] bg-[#EDEDE2] border border-gray-300">
+                                       Clase {{ articulo.clasificacion }}
+                                    </span>
+                                </td>
+                            </tr> 
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="px-6 py-16 text-center">
+                                    <span class="block text-sm font-bold text-gray-400 uppercase tracking-widest">Base de datos vacía. Registre su primer artículo.</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
-        </form>
+        </div>
+
     </div>
-
-    <h2 class="text-xl font-bold text-[#000000] mb-4 uppercase tracking-wider border-l-4 border-[#0E2F2A] pl-3">
-        Artículos Activos <span class="text-gray-500 font-medium text-sm">({{articulos.count}} Registrados)</span>
-    </h2>
-
-    <div class="overflow-hidden border border-gray-300 shadow-sm rounded-none">
-        <table class="min-w-full divide-y divide-[#EDEDE2]">
-            <thead class="bg-[#EDEDE2]">
-                <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Clave</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Descripción</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">U. Medida</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Familia</th>
-                    <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Rotación</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-[#EDEDE2]">
-                {% for articulo in articulos %}
-                <tr class="hover:bg-[#EDEDE2] transition-colors duration-150">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#000000]">{{ articulo.clave }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 uppercase">{{ articulo.descripcion }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold uppercase">{{ articulo.unidad_medida }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium uppercase">{{ articulo.familia }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center"> 
-                        <span class="px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0E2F2A] bg-[#EDEDE2] border border-gray-300 rounded-none">
-                           Clase {{ articulo.clasificacion }}
-                        </span>
-                    </td>
-                </tr> {% empty %}
-                <tr>
-                    <td colspan="5" class="px-6 py-12 text-center text-sm font-bold text-gray-500 uppercase tracking-wider bg-gray-50">
-                        No hay artículos registrados.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
 </div>
 {% endblock %}

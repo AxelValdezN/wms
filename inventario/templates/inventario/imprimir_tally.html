@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recibo {{ entrada.folio_entrada }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap');
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #e5e7eb; }
+        .hoja-a4 {
+            width: 21cm;
+            min-height: 29.7cm;
+            margin: 2cm auto;
+            background: white;
+            padding: 1.5cm;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        @media print {
+            body { background-color: white; margin: 0; padding: 0; }
+            .hoja-a4 { margin: 0; padding: 0; width: 100%; box-shadow: none; }
+            .no-print { display: none !important; }
+        }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #111; padding: 4px 6px; font-size: 10px; }
+        th { background-color: #f3f4f6; text-align: center; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    {% if request.GET.reimpreso == "true" %}
+<div class="no-print bg-red-600 text-white text-center py-2 text-xs font-black uppercase tracking-widest sticky top-0 z-50">
+    ⚠️ ATENCIÓN: ESTA ES UNA COPIA REIMPRESA. CUALQUIER ALTERACIÓN SERÁ AUDITADA POR EL SISTEMA.
+</div>
+{% endif %}
+
+<div class="hoja-a4 relative overflow-hidden">
+    
+    {% if request.GET.reimpreso == "true" %}
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-[0.06] transform rotate-[-35deg] z-0">
+        <h1 class="text-7xl font-black border-8 border-red-800 p-4 tracking-widest text-red-800 uppercase">REIMPRESIÓN AUDITADA</h1>
+    </div>
+    {% endif %}
+
+    <div class="no-print fixed top-6 right-6 flex flex-col gap-3">
+        <button onclick="window.print()" class="bg-[#0E2F2A] text-[#B8D700] px-6 py-3 font-bold uppercase tracking-widest text-sm shadow-xl border border-transparent hover:border-[#0E2F2A] transition-all">
+            🖨️ Imprimir Formato
+        </button>
+        <a href="{% url 'inventario:dashboard' %}" class="bg-white text-[#0E2F2A] px-6 py-3 font-bold uppercase tracking-widest text-sm text-center shadow-xl border border-gray-300 transition-all">
+            Ir al Dashboard
+        </a>
+    </div>
+
+    <div class="hoja-a4">
+        
+        <div class="flex justify-between items-start border-b-2 border-black pb-4 mb-4">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter uppercase text-black">PATH</h1>
+                <p class="text-[9px] font-bold tracking-widest uppercase text-gray-500">Logistics & Copacker</p>
+            </div>
+            <div class="text-center">
+                <h2 class="text-base font-black tracking-widest uppercase">Control de Recibo de Producto</h2>
+                <p class="text-[10px] font-bold text-gray-500 uppercase mt-1">RG-VM-OP-001, V00 | FE: OCT 2024 - RE: OCT 2024</p>
+            </div>
+            <div class="border-2 border-black p-2 text-center w-32">
+                <p class="text-[10px] font-bold uppercase tracking-widest bg-gray-200">Folio</p>
+                <p class="text-xl font-black">{{ entrada.folio_entrada }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-4 text-[10px]">
+            <div class="border border-black p-2">
+                <p><span class="font-bold">CLIENTE:</span> <span class="uppercase">{{ entrada.cliente }}</span></p>
+                <p class="mt-2"><span class="font-bold">CORTINA:</span> <span class="uppercase">{{ entrada.cortina|default:"--" }}</span></p>
+            </div>
+            <div class="border border-black p-2">
+                <p><span class="font-bold">TRANSPORTISTA:</span> <span class="uppercase">{{ entrada.transporte_linea }}</span></p>
+                <p><span class="font-bold">CHOFER:</span> <span class="uppercase">{{ entrada.nombre_chofer }}</span></p>
+                <p><span class="font-bold">PLACAS TRACTO:</span> <span class="uppercase">{{ entrada.placas_tractor }}</span></p>
+                <p><span class="font-bold">PLACAS CAJA:</span> <span class="uppercase">{{ entrada.placas_caja }}</span></p>
+            </div>
+            <div class="border border-black p-2">
+                <p><span class="font-bold">SELLOS:</span> <span class="uppercase">{{ entrada.sellos_seguridad }}</span></p>
+                <p><span class="font-bold">ECONÓMICO:</span> <span class="uppercase">{{ entrada.numero_economico|default:"--" }}</span></p>
+                <p class="mt-2"><span class="font-bold">FECHA MANIOBRA:</span> <span class="uppercase">{{ entrada.fecha_maniobra|date:"d M Y" }}</span></p>
+                <p><span class="font-bold">HORARIO:</span> <span class="uppercase">{{ entrada.hora_llegada|time:"H:i" }} - {{ entrada.hora_termino|time:"H:i" }}</span></p>
+            </div>
+        </div>
+
+        <div class="flex justify-between border-y-2 border-black py-2 mb-4 text-[10px] font-bold">
+            <div class="flex gap-4">
+                <span class="bg-black text-white px-2 py-0.5 uppercase">TIPO</span>
+                <span class="uppercase">☑ {{ entrada.get_tipo_transporte_display }}</span>
+            </div>
+            <div class="flex gap-4">
+                <span class="bg-black text-white px-2 py-0.5 uppercase">DESCARGA</span>
+                <span class="uppercase">☑ {{ entrada.get_tipo_descarga_display }}</span>
+            </div>
+        </div>
+
+        <div class="min-h-[400px]">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="w-1/4">SKU</th>
+                        <th class="w-1/6">LOTE</th>
+                        <th class="w-1/6">CADUCIDAD</th>
+                        <th class="w-1/6">UBICACIÓN</th>
+                        <th class="w-1/6">CANTIDAD</th>
+                        <th class="w-1/6">ESTADO</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center font-bold uppercase text-[11px]">
+                    {% for detalle in detalles %}
+                    <tr>
+                        <td class="text-left font-black">{{ detalle.articulo.clave }}</td>
+                        <td>{{ detalle.lote.clave }}</td>
+                        <td>{{ detalle.lote.fecha_caducidad|date:"d/m/y"|default:"--" }}</td>
+                        <td class="bg-gray-100 font-black">{{ detalle.localizacion.clave }}</td>
+                        <td class="font-black">{{ detalle.cantidad_recibida|floatformat:2 }}</td>
+                        <td class="text-[9px]">DISPONIBLE</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-y-2 border-black py-2 my-4 flex justify-between items-center bg-gray-50">
+            <div class="text-[10px] font-bold px-2 flex gap-6">
+                <p><span class="bg-black text-white px-2 py-0.5">PEDIMENTO:</span> {{ entrada.pedimento|default:"--" }}</p>
+                <p><span class="bg-black text-white px-2 py-0.5">ORDER:</span> {{ entrada.orden_referencia|default:"--" }}</p>
+                <p><span class="bg-black text-white px-2 py-0.5">INVOICE:</span> {{ entrada.documento_referencia|default:"--" }}</p>
+                <p><span class="bg-black text-white px-2 py-0.5">RO/PO:</span> {{ entrada.ro_po|default:"--" }}</p>
+            </div>
+            <div class="border-l-2 border-black pl-4 pr-2">
+                <p class="text-[10px] font-bold uppercase tracking-widest mb-1">Total Ingresado</p>
+                <p class="text-xl font-black">{{ entrada.total_piezas_final|floatformat:2 }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-4 mt-8 pt-4 border-t-2 border-black h-32">
+            <div class="col-span-1 text-[10px] font-bold uppercase border-r border-black pr-2">
+                <p class="mb-1">Observaciones:</p>
+                <p class="font-normal text-[9px]">{{ entrada.observaciones|default:"Sin observaciones de maniobra." }}</p>
+            </div>
+            <div class="col-span-1 text-center border-r border-black px-2 relative">
+                <div class="absolute bottom-6 left-0 right-0 border-b border-black w-3/4 mx-auto"></div>
+                <p class="absolute bottom-0 w-full text-[9px] font-bold uppercase">Supervisor (Recibió)<br>{{ entrada.supervisor_turno|default:"" }}</p>
+            </div>
+            <div class="col-span-1 text-center border-r border-black px-2 relative">
+                <div class="absolute bottom-6 left-0 right-0 border-b border-black w-3/4 mx-auto"></div>
+                <p class="absolute bottom-0 w-full text-[9px] font-bold uppercase">Auditor Inventarios<br>{{ entrada.usuario.username }}</p>
+            </div>
+            <div class="col-span-1 text-center px-2 relative flex flex-col justify-center items-center">
+                <p class="text-xs font-black uppercase tracking-widest text-gray-300 border-4 border-gray-300 p-2 transform rotate-[-15deg]">SELLO DE<br>OPERACIONES</p>
+                <p class="absolute bottom-0 w-full text-[9px] font-bold uppercase">Sello y Fecha</p>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

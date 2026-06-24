@@ -1,83 +1,113 @@
 {% extends 'inventario/base.html' %}
-{% block content %}
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-white">
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-[#F9F9F9]" style="font-family: 'Space Grotesk', sans-serif;">
     
-    <div class="mb-8 border-b-2 border-[#0E2F2A] pb-4 flex justify-between items-end">
+    <div class="mb-6 flex justify-between items-end border-b border-gray-200 pb-4">
         <div>
-            <h1 class="text-3xl font-bold text-[#000000] tracking-tight uppercase">Catálogo de Localizaciones</h1>
-            <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Gestión de la estructura física del almacén</p>
+            <h1 class="text-3xl font-bold text-[#0E2F2A] tracking-tight uppercase">Layout y Localizaciones</h1>
+            <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Gestión de la estructura física y topología del almacén</p>
         </div>
     </div>
 
-    <div class="bg-white border border-gray-300 border-t-4 border-t-[#0E2F2A] shadow-sm p-8 mb-10 rounded-none">
-        <h2 class="text-lg font-bold text-[#0E2F2A] mb-6 border-b border-[#EDEDE2] pb-2 uppercase tracking-wider">Registrar Nueva Ubicación</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <form method="POST" action="{% url 'inventario:catalogo_localizaciones' %}" class="space-y-6">
-            {% csrf_token %}
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Clave de Ubicación (Ej. A01)</label>
-                    <input type="text" name="clave" required 
-                           class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-2.5 uppercase font-bold text-[#000000]">
+        <div class="lg:col-span-4">
+            <div class="bg-white border border-gray-200 shadow-sm rounded-none sticky top-6">
+                
+                <div class="bg-[#0E2F2A] px-6 py-4 border-b-4 border-[#B8D700]">
+                    <h2 class="text-white text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        Alta de Ubicación
+                    </h2>
                 </div>
-                <div>
-                    <label for="almacen" class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Almacén / Nave</label>
-                    <input type="text" name="almacen" id="almacen" required 
-                           class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-2.5 uppercase text-gray-800">
-                </div>
-                <div>
-                    <label for="tipo" class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Tipo de Espacio</label>
-                    <select name="tipo" id="tipo" required 
-                            class="block w-full rounded-none border-gray-300 shadow-sm focus:border-[#0E2F2A] focus:ring-0 text-sm border p-2.5 uppercase bg-white text-gray-800">
-                        <option value="RACK">RACK (ESTANTE)</option>
-                        <option value="PISO">ZONA DE PISO</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="pt-4 border-t border-[#EDEDE2] mt-6 flex justify-end">
-                <button type="submit" class="bg-[#0E2F2A] text-white px-8 py-3 rounded-none font-bold text-sm uppercase tracking-wider hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors border border-transparent hover:border-[#0E2F2A]">
-                    Registrar Ubicación
-                </button>
-            </div>
-        </form>
-    </div>
 
-    <h2 class="text-xl font-bold text-[#000000] mb-4 uppercase tracking-wider border-l-4 border-[#0E2F2A] pl-3">
-        Ubicaciones Registradas
-    </h2>
+                <form method="POST" action="{% url 'inventario:catalogo_localizaciones' %}" class="p-6 space-y-5">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Clave de Ubicación</label>
+                        <input type="text" name="clave" required placeholder="EJ. RACK-A01" 
+                               class="w-full rounded-none border border-gray-300 p-2.5 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                        <p class="text-[10px] font-bold text-gray-400 mt-1.5 uppercase tracking-wide">Código exacto impreso en la etiqueta física.</p>
+                    </div>
 
-    <div class="overflow-hidden border border-gray-300 shadow-sm rounded-none">
-        <table class="min-w-full divide-y divide-[#EDEDE2]">
-            <thead class="bg-[#EDEDE2]">
-                <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Clave</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Almacén</th>
-                    <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Tipo de Espacio</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-[#EDEDE2]">
-                {% for loc in localizaciones %}
-                <tr class="hover:bg-[#EDEDE2] transition-colors duration-150">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-[#000000] uppercase">{{ loc.clave }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 uppercase">{{ loc.almacen }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                        <span class="px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0E2F2A] bg-[#EDEDE2] border border-gray-300 rounded-none">
-                            {{ loc.get_tipo_display }}
-                        </span>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3" class="px-6 py-12 text-center text-sm font-bold text-gray-500 uppercase tracking-wider bg-gray-50">
-                        No hay ubicaciones registradas en el mapa.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    <div>
+                        <label for="almacen" class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Almacén / Nave</label>
+                        <input type="text" name="almacen" id="almacen" required placeholder="EJ. NAVE PRINCIPAL" 
+                               class="w-full rounded-none border border-gray-300 p-2.5 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                    </div>
+
+                    <div>
+                        <label for="tipo" class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Tipo de Espacio Físico</label>
+                        <select name="tipo" id="tipo" required 
+                                class="w-full rounded-none border border-gray-300 p-2.5 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors cursor-pointer">
+                            <option value="RACK">RACK (ESTRUCTURA DE ACERO)</option>
+                            <option value="PISO">ZONA DE PISO (TARIMA DIRECTA)</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-4 mt-2">
+                        <button type="submit" class="w-full bg-[#0E2F2A] text-[#B8D700] px-6 py-3.5 rounded-none font-bold text-sm uppercase tracking-wider hover:bg-black transition-colors shadow-sm border border-transparent hover:border-[#0E2F2A]">
+                            Registrar en Layout
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8">
+            
+            <div class="bg-white border border-gray-200 shadow-sm rounded-none flex flex-col h-full">
+                
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <h3 class="text-sm font-bold text-[#0E2F2A] uppercase tracking-wider flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
+                        Mapeo de Ubicaciones
+                    </h3>
+                    <span class="bg-[#EDEDE2] text-[#0E2F2A] text-xs font-bold px-3 py-1 uppercase">{{ localizaciones|length }} Espacios Activos</span>
+                </div>
+
+                <div class="overflow-x-auto overflow-y-auto max-h-[600px] relative bg-white">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-white sticky top-0 z-10 shadow-sm outline outline-1 outline-gray-200">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Código (Rack/Piso)</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Almacén Origen</th>
+                                <th scope="col" class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-widest">Configuración</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            {% for loc in localizaciones %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-black text-[#0E2F2A]">{{ loc.clave }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-700 uppercase">{{ loc.almacen }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    {% if loc.tipo == 'RACK' %}
+                                        <span class="px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#0E2F2A] bg-[#EDEDE2] border border-gray-300">
+                                            Estructura (Rack)
+                                        </span>
+                                    {% else %}
+                                        <span class="px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-gray-700 bg-gray-100 border border-gray-300">
+                                            Nivel de Piso
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="px-6 py-16 text-center">
+                                    <span class="block text-sm font-bold text-gray-400 uppercase tracking-widest">Layout vacío. Comience a mapear el andén.</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

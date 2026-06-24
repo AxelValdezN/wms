@@ -1,57 +1,145 @@
 {% extends 'inventario/base.html' %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-[#F9F9F9]" style="font-family: 'Space Grotesk', sans-serif;">
     
     <!-- Encabezado -->
-    <div class="mb-8 border-b-2 border-[#0E2F2A] pb-4">
-        <h1 class="text-3xl font-bold text-[#000000] tracking-tight uppercase">Módulo de Liberación y Calidad</h1>
-        <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Gestión rápida de estatus para mercancía en piso.</p>
+    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-gray-200 pb-4">
+        <div>
+            <h1 class="text-3xl font-bold text-[#0E2F2A] tracking-tight uppercase">Liberación y Calidad</h1>
+            <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Bloqueo, cuarentena y ajustes de estado físico en piso</p>
+        </div>
     </div>
 
-    <!-- Caja del formulario -->
-    <div class="bg-white border border-gray-300 border-t-4 border-t-[#0E2F2A] shadow-sm p-8 rounded-none">
-        <form action="{% url 'inventario:cambiar_estatus' %}" method="POST" class="space-y-6">
-            {% csrf_token %}
-            
-            <!-- Selector principal-->
-            <div>
-                <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Mercancía Física a Modificar</label>
-                <select name="existencia_id" required class="block w-full rounded-none border-gray-300 shadow-sm p-2.5 text-sm uppercase border focus:ring-0 focus:border-[#0E2F2A] bg-white">
-                    <option value="" disabled selected>-- Selecciona el lote y ubicación --</option>
-                    {% for ex in existencias %}
-                        <option value="{{ ex.id }}">
-                            {{ ex.articulo.clave }} | Ubicación: {{ ex.localizacion.clave|default:"Sin Rack" }} | Actual: {{ ex.get_estado_calidad_display }} (Cant: {{ ex.cantidad_actual }})
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Grid para cantidad y estatus-->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Cantidad a Cambiar</label>
-                    <input type="number" step="0.01" name="cantidad" required class="block w-full rounded-none border-gray-300 shadow-sm p-2.5 text-sm font-bold border focus:ring-0 focus:border-[#0E2F2A]">
-                </div>
+    <!-- PANEL DUAL (Grid de 12 columnas) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- COLUMNA IZQUIERDA: Terminal de Ajuste (5 columnas) -->
+        <div class="lg:col-span-5">
+            <div class="bg-white border border-gray-200 shadow-sm rounded-none">
                 
+                <!-- Cabecera del Panel -->
+                <div class="bg-[#0E2F2A] px-6 py-4 border-b-4 border-yellow-500">
+                    <h2 class="text-white text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        Parámetros de Ajuste
+                    </h2>
+                </div>
+
+                <form action="{% url 'inventario:cambiar_estatus' %}" method="POST" class="p-6 space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- BLOQUE 1: Selección de Lote -->
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-1">1. Origen Físico</h3>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Mercancía en Piso (SKU / Lote / Rack)</label>
+                            <select name="existencia_id" required class="w-full rounded-none border border-gray-300 p-2.5 text-xs font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors cursor-pointer">
+                                <option value="" disabled selected>-- SELECCIONE LA EXISTENCIA A MODIFICAR --</option>
+                                {% for ex in existencias %}
+                                    <option value="{{ ex.id }}">
+                                        {{ ex.articulo.clave }} | RACK: {{ ex.localizacion.clave|default:"N/A" }} | ESTATUS: {{ ex.get_estado_calidad_display }} (Cant: {{ ex.cantidad_actual }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <p class="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-wide">Solo se muestran ubicaciones con stock mayor a cero.</p>
+                        </div>
+                    </div>
+
+                    <!-- BLOQUE 2: Transición -->
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-1 mt-6">2. Transición y Volumen</h3>
+                        
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Nuevo Estatus de Calidad</label>
+                            <select name="nuevo_estado" required class="w-full rounded-none border border-gray-300 p-2.5 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors cursor-pointer">
+                                <option value="" disabled selected>-- ¿A QUÉ ESTATUS PASA? --</option>
+                                {% for valor, etiqueta in estados %}
+                                    <option value="{{ valor }}">{{ etiqueta }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 border border-gray-200 mt-4">
+                            <label class="block text-xs font-bold text-gray-800 uppercase tracking-wider mb-2">Cantidad a Transferir</label>
+                            <div class="relative">
+                                <input type="number" step="0.01" min="0.01" name="cantidad" required placeholder="0.00"
+                                       class="w-full rounded-none border-2 border-[#0E2F2A] p-3 text-xl font-bold text-[#0E2F2A] focus:ring-0 focus:border-yellow-500 text-right transition-colors bg-white">
+                                <span class="absolute left-3 top-4 text-xs font-bold text-gray-400 uppercase tracking-wider">PIEZAS</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="pt-4 flex flex-col gap-3">
+                        <button type="submit" class="w-full bg-[#0E2F2A] text-white px-6 py-4 rounded-none font-bold text-sm uppercase tracking-wider hover:bg-black transition-colors shadow-md border border-transparent hover:border-yellow-500">
+                            Aplicar Cambio de Estatus &rarr;
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: SOP y Glosario Semántico (7 columnas) -->
+        <div class="lg:col-span-7 hidden lg:flex flex-col gap-6">
+            
+            <!-- Panel de Protocolo (SOP) -->
+            <div class="bg-[#EDEDE2] border border-gray-200 p-6 flex items-start gap-4 shadow-sm">
+                <div class="bg-white p-3 border border-gray-300 text-yellow-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#0E2F2A] uppercase tracking-wider mb-2">Nuevo Estatus de Calidad</label>
-                    <select name="nuevo_estado" required class="block w-full rounded-none border-gray-300 shadow-sm p-2.5 text-sm uppercase border focus:ring-0 focus:border-[#0E2F2A] bg-white">
-                        <option value="" disabled selected>-- ¿A dónde pasa? --</option>
-                        {% for valor, etiqueta in estados %}
-                            <option value="{{ valor }}">{{ etiqueta }}</option>
-                        {% endfor %}
-                    </select>
+                    <h3 class="text-sm font-bold text-[#0E2F2A] uppercase tracking-wider mb-1">SOP: Bloqueos y Auditoría</h3>
+                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wide leading-relaxed">
+                        Este módulo altera la disponibilidad de los artículos para el motor de surtido (PEPS). Si un lote es puesto en <span class="font-bold text-yellow-600">CUARENTENA</span> o <span class="font-bold text-red-600">MERMA</span>, el algoritmo de picking lo ignorará automáticamente, protegiendo las órdenes de salida a clientes.
+                    </p>
                 </div>
             </div>
 
-            <!-- Boton de accion -->
-            <div class="pt-4 border-t border-[#EDEDE2] mt-6 flex justify-end">
-                <button type="submit" class="bg-[#0E2F2A] text-white px-8 py-3 rounded-none font-bold text-sm uppercase tracking-wider hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors border border-transparent hover:border-[#0E2F2A]">
-                    Aplicar Cambio y Actualizar
-                </button>
+            <!-- Glosario Semántico Corporativo -->
+            <div class="bg-white border border-gray-200 p-6 shadow-sm flex-grow">
+                <h3 class="text-sm font-bold text-[#0E2F2A] uppercase tracking-wider mb-6 border-b border-gray-100 pb-2">Diccionario de Estatus de Calidad</h3>
+                
+                <div class="space-y-6">
+                    
+                    <!-- Disponible -->
+                    <div class="flex items-start gap-4 p-4 border border-green-100 bg-green-50">
+                        <span class="px-3 py-1 text-xs font-bold rounded-none bg-green-200 text-green-800 uppercase tracking-wider border border-green-300 mt-1">
+                            Disponible
+                        </span>
+                        <div>
+                            <p class="text-sm font-bold text-green-900 uppercase tracking-wider mb-1">Mercancía Liberada</p>
+                            <p class="text-xs font-medium text-green-800 uppercase tracking-wide">Producto en óptimas condiciones, visible para el algoritmo de Picking List y listo para venta o despacho a líneas de producción.</p>
+                        </div>
+                    </div>
+
+                    <!-- Cuarentena -->
+                    <div class="flex items-start gap-4 p-4 border border-yellow-100 bg-yellow-50">
+                        <span class="px-3 py-1 text-xs font-bold rounded-none bg-yellow-200 text-yellow-800 uppercase tracking-wider border border-yellow-300 mt-1">
+                            Cuarentena
+                        </span>
+                        <div>
+                            <p class="text-sm font-bold text-yellow-900 uppercase tracking-wider mb-1">Bloqueo Preventivo</p>
+                            <p class="text-xs font-medium text-yellow-800 uppercase tracking-wide">Producto retenido temporalmente por sospecha de daño físico, revisión de caducidades, o espera de dictamen de laboratorio. Bloqueado para salida.</p>
+                        </div>
+                    </div>
+
+                    <!-- Merma -->
+                    <div class="flex items-start gap-4 p-4 border border-red-100 bg-red-50">
+                        <span class="px-3 py-1 text-xs font-bold rounded-none bg-red-200 text-red-800 uppercase tracking-wider border border-red-300 mt-1">
+                            Merma
+                        </span>
+                        <div>
+                            <p class="text-sm font-bold text-red-900 uppercase tracking-wider mb-1">Pérdida Declarada</p>
+                            <p class="text-xs font-medium text-red-800 uppercase tracking-wide">Producto destruido, caducado o robado. Aún existe físicamente en el rack esperando destrucción, pero no suma a la salud del inventario activo.</p>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-        </form>
+
+        </div>
     </div>
+
 </div>
 {% endblock %}

@@ -1,99 +1,159 @@
 {% extends 'inventario/base.html' %}
-{% block content %}
 
-<div class="max-w-4xl mx-auto px-4 py-10 bg-white">
+{% block content %}
+<!-- Fondo gris de la aplicación para que la hoja resalte como un documento físico -->
+<div class="min-h-screen bg-[#F9F9F9] py-8 print:bg-white print:py-0 print:min-h-0" style="font-family: 'Space Grotesk', sans-serif;">
     
-    <div class="flex justify-between items-center mb-6 print:hidden">
-        <a href="{% url 'inventario:dashboard' %}" class="bg-[#EDEDE2] border border-gray-300 text-[#000000] px-6 py-2.5 rounded-none text-sm font-bold hover:bg-gray-200 transition-colors uppercase tracking-wider">
-            Volver a Órdenes
+    <!-- Barra de Herramientas Flotante (Solo Web) -->
+    <div class="max-w-4xl mx-auto px-4 mb-6 flex justify-between items-center print:hidden">
+        <a href="{% url 'inventario:dashboard' %}" class="flex items-center gap-2 text-[#0E2F2A] hover:text-black font-bold uppercase tracking-wider text-sm transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver a la Torre
         </a>
-        <button onclick="window.print()" class="bg-[#0E2F2A] text-white px-8 py-2.5 rounded-none text-sm font-bold shadow-sm hover:bg-[#B8D700] hover:text-[#0E2F2A] transition-colors uppercase tracking-wider border border-transparent hover:border-[#0E2F2A]">
+        <button onclick="window.print()" class="bg-[#0E2F2A] text-[#B8D700] px-8 py-3 rounded-none text-sm font-bold shadow-md hover:bg-black transition-colors uppercase tracking-wider border border-transparent flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
             Imprimir Hoja de Surtido
         </button>
     </div>
 
-    <div class="bg-white shadow-sm border border-gray-300 p-10 print:shadow-none print:border-none print:p-0 rounded-none">
+    <!-- EL DOCUMENTO (Hoja A4) -->
+    <div class="max-w-4xl mx-auto bg-white shadow-2xl border border-gray-300 print:shadow-none print:border-none print:max-w-full">
         
-        <div class="border-b-4 border-[#0E2F2A] pb-4 mb-6 flex justify-between items-end">
-            <div>
-                <h1 class="text-3xl font-bold text-[#000000] tracking-tight uppercase">Orden de Surtido (PEPS)</h1>
-                <p class="text-sm font-bold text-gray-500 mt-1 uppercase tracking-wider">Path Logistic & Copacker</p>
-            </div>
-            <div class="text-right">
-                <div class="text-2xl font-bold text-gray-800 uppercase">FOLIO: <span class="text-[#0E2F2A]">{{ orden.folio_salida }}</span></div>
-                <p class="text-xs font-bold text-gray-500 mt-1 uppercase">Fecha de Emisión: {% now "d/m/Y H:i" %}</p>
-            </div>
-        </div>
-
-        <div class="bg-[#EDEDE2] border-l-4 border-[#0E2F2A] p-4 mb-8 rounded-none">
-            <div class="grid grid-cols-2 gap-4">
+        <div class="p-8 sm:p-12 print:p-0">
+            
+            <!-- Cabecera Corporativa -->
+            <div class="border-b-4 border-[#0E2F2A] pb-6 mb-8 flex justify-between items-start">
                 <div>
-                    <p class="text-xs text-gray-600 font-bold uppercase tracking-wider">Asignado a (Operador):</p>
-                    <p class="text-lg font-bold text-[#000000] uppercase">{{ orden.asignado_a }}</p>
+                    <h1 class="text-3xl font-black text-[#0E2F2A] tracking-tighter uppercase">Picking List (PEPS)</h1>
+                    <p class="text-sm font-bold text-gray-500 mt-1 uppercase tracking-widest">Path Logistics & Copacker</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-xs text-gray-600 font-bold uppercase tracking-wider">Destino / Rampa:</p>
-                    <p class="text-lg font-bold text-[#0E2F2A] uppercase">{{ orden.destino }}</p>
+                    <div class="text-3xl font-black text-[#000000] uppercase tracking-tighter">{{ orden.folio_salida }}</div>
+                    <p class="text-xs font-bold text-gray-500 mt-1 uppercase">Impresión: {% now "d/m/Y H:i" %}</p>
                 </div>
             </div>
-        </div>
 
-        <table class="min-w-full divide-y divide-[#EDEDE2] mb-12 border-b-2 border-gray-300">
-            <thead>
-                <tr class="bg-[#EDEDE2]">
-                    <th class="py-3 px-4 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Ubicación (Rack)</th>
-                    <th class="py-3 px-4 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">SKU / Artículo</th>
-                    <th class="py-3 px-4 text-left text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Lote Asignado</th>
-                    <th class="py-3 px-4 text-right text-xs font-bold text-[#0E2F2A] uppercase tracking-wider border-b border-gray-300">Cant. Surtir</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-[#EDEDE2] bg-white">
-                {% for item in detalles %}
-                <tr>
-                    <td class="py-4 px-4 text-sm font-bold text-[#000000] uppercase">{{ item.localizacion.clave }}</td>
-                    <td class="py-4 px-4 text-sm text-gray-800 font-bold uppercase">{{ item.articulo.clave }}</td>
-                    <td class="py-4 px-4 text-sm text-gray-600 font-bold uppercase">{{ item.lote }}</td>
-                    <td class="py-4 px-4 text-lg text-right font-bold text-[#0E2F2A]">{{ item.cantidad_surtida }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            <tfoot>
-                <tr class="bg-gray-50 border-t-2 border-gray-300">
-                    <td colspan="3" class="py-4 px-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Meta Total de Control (CC):</td>
-                    <td class="py-4 px-4 text-right text-xl font-bold text-[#000000]">{{ orden.meta_total }}</td>
-                </tr>
-            </tfoot>
-        </table>
+            <!-- Datos de Misión -->
+            <div class="bg-gray-50 border-2 border-[#0E2F2A] p-4 mb-8">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Responsable de Extracción</p>
+                        <p class="text-lg font-black text-[#000000] uppercase">{{ orden.asignado_a }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Destino de Embarque</p>
+                        <p class="text-lg font-black text-[#0E2F2A] uppercase">{{ orden.destino }}</p>
+                    </div>
+                </div>
+            </div>
 
-        <div class="grid grid-cols-2 gap-8 mt-24 pt-8">
-            <div class="text-center">
-                <div class="border-t-2 border-[#0E2F2A] mx-10 pt-2">
-                    <p class="text-sm font-bold text-[#000000] uppercase">Operador de Surtido</p>
-                    <p class="text-xs text-gray-500 uppercase mt-1">{{ orden.asignado_a }}</p>
+            <!-- Tabla Industrial de Alta Legibilidad -->
+            <table class="w-full mb-12 border-collapse">
+                <thead>
+                    <tr class="bg-[#0E2F2A] text-white">
+                        <th class="py-3 px-4 w-12 text-center border-2 border-[#0E2F2A]">
+                            <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </th>
+                        <th class="py-3 px-4 text-left text-xs font-bold uppercase tracking-widest border-2 border-[#0E2F2A]">Ubicación Fís.</th>
+                        <th class="py-3 px-4 text-left text-xs font-bold uppercase tracking-widest border-2 border-[#0E2F2A]">Detalle de Mercancía</th>
+                        <th class="py-3 px-4 text-right text-xs font-bold uppercase tracking-widest border-2 border-[#0E2F2A]">Extracción</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    {% for item in detalles %}
+                    <tr>
+                        <!-- Columna: Checkbox Físico -->
+                        <td class="py-4 px-4 text-center border-2 border-[#0E2F2A]">
+                            <div class="w-6 h-6 border-2 border-gray-300 mx-auto rounded-sm print:border-black print:border-2"></div>
+                        </td>
+                        
+                        <!-- Columna: RACK -->
+                        <td class="py-4 px-4 border-2 border-[#0E2F2A] bg-gray-50">
+                            <span class="block text-2xl font-black text-[#000000] uppercase">{{ item.localizacion.clave }}</span>
+                        </td>
+                        
+                        <!-- Columna: SKU y Lote agrupados para limpiar el diseño -->
+                        <td class="py-4 px-4 border-2 border-[#0E2F2A]">
+                            <span class="block text-sm font-bold text-[#0E2F2A] uppercase">{{ item.articulo.clave }}</span>
+                            <span class="block text-[11px] font-bold text-gray-500 mt-1 uppercase tracking-wider">LOTE PEPS: <span class="text-black">{{ item.lote }}</span></span>
+                        </td>
+                        
+                        <!-- Columna: Cantidad -->
+                        <td class="py-4 px-4 border-2 border-[#0E2F2A] bg-gray-50 text-right">
+                            <span class="block text-3xl font-black text-[#0E2F2A]">{{ item.cantidad_surtida }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if request.GET.reimpreso == "true" %}
+                        <div class="no-print bg-red-600 text-white text-center py-2 text-xs font-black uppercase tracking-widest sticky top-0 z-50">
+                            ⚠️ ATENCIÓN: ESTA ES UNA COPIA REIMPRESA DEL PICKING LIST. NO VÁLIDA PARA DOBLE SURTIDO.
+                        </div>
+                        {% endif %}
+
+                        <div class="relative overflow-hidden bg-white ... (tus clases actuales) ...">
+                            
+                            {% if request.GET.reimpreso == "true" %}
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-[0.06] transform rotate-[-35deg] z-0">
+                                <h1 class="text-7xl font-black border-8 border-red-800 p-4 tracking-widest text-red-800 uppercase">COPIA REIMPRESA</h1>
+                            </div>
+                            {% endif %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="py-4 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-widest border-2 border-[#0E2F2A]">Meta Control (CC):</td>
+                        <td class="py-4 px-4 text-right text-2xl font-black text-[#000000] border-2 border-[#0E2F2A]">{{ orden.meta_total }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- Bloque de Auditoría y Firmas -->
+            <div class="grid grid-cols-2 gap-12 mt-16 pt-8 print:mt-12 print:pt-4">
+                <div class="text-center">
+                    <div class="border-t-2 border-[#000000] mx-4 pt-2">
+                        <p class="text-xs font-bold text-[#000000] uppercase tracking-wider">Extracción / Operador</p>
+                        <p class="text-[10px] text-gray-500 uppercase mt-1">{{ orden.asignado_a }}</p>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="border-t-2 border-[#000000] mx-4 pt-2">
+                        <p class="text-xs font-bold text-[#000000] uppercase tracking-wider">Auditoría de Rampa</p>
+                        <p class="text-[10px] text-gray-500 uppercase mt-1">Firma de Supervisor</p>
+                    </div>
                 </div>
             </div>
-            <div class="text-center">
-                <div class="border-t-2 border-[#0E2F2A] mx-10 pt-2">
-                    <p class="text-sm font-bold text-[#000000] uppercase">Supervisor de Andén</p>
-                    <p class="text-xs text-gray-500 uppercase mt-1">Firma de Liberación</p>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>
 
 <style>
-    /* Reglas estrictas para la impresora del navegador */
+    /* Reglas estrictas para garantizar la impresión perfecta */
     @media print {
-        body { 
-            background-color: white !important; 
-            color: black !important;
-            -webkit-print-color-adjust: exact; 
-            print-color-adjust: exact;
+        body, html {
+            background-color: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+        * {
+            -webkit-print-color-adjust: exact !important;
+            -color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
         .print\:hidden { display: none !important; }
-        .max-w-4xl { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-        @page { margin: 1cm; size: auto; }
+        .print\:shadow-none { box-shadow: none !important; }
+        .print\:border-none { border: none !important; }
+        .print\:bg-white { background-color: white !important; }
+        .print\:p-0 { padding: 0 !important; }
+        .print\:m-0 { margin: 0 !important; }
+        .print\:max-w-full { max-width: 100% !important; width: 100% !important; }
+        /* Fuerza los bordes negros en impresión */
+        table, th, td { border-color: black !important; }
+        
+        @page {
+            margin: 10mm; /* Márgenes físicos de la hoja */
+            size: portrait; /* Orientación vertical */
+        }
     }
 </style>
 {% endblock %}

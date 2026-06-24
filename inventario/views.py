@@ -7,30 +7,31 @@ from django.db import transaction
 from django.utils.dateparse import parse_date
 from django.db.models import Q, F, Sum, Count
 from django.shortcuts import render, redirect, get_object_or_404
-import time
+import time, json
 from django.utils import timezone
 from datetime import timedelta
+from django.http import JsonResponse
+from django.urls import reverse
 
 @login_required
 def dashboard_inventario(request):
     hoy = timezone.now()
-    # Obtenemos el inicio del mes actual para medir el flujo
     inicio_mes = hoy.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
-    # --- KPI 1: Termómetro de Actividad ---
+    # El termometro de
     flujo = Movimiento.objects.filter(fecha__gte=inicio_mes).aggregate(
         entradas=Sum('cantidad_entrada', filter=Q(tipo_movimiento='ENTRADA')),
         salidas=Sum('cantidad_salida', filter=Q(tipo_movimiento='SALIDA'))
     )
 
-    # --- KPI 2: Salud del Inventario ---
+    # saluda del inventario
     salud = Existencia.objects.aggregate(
         disponible=Sum('cantidad_actual', filter=Q(estado_calidad='DISPONIBLE')),
         merma=Sum('cantidad_actual', filter=Q(estado_calidad='MERMA')),
         cuarentena=Sum('cantidad_actual', filter=Q(estado_calidad='CUARENTENA'))
     )
 
-    # --- KPI 3: Tasa de Cumplimiento ---
+    # KPI Tasa de cumplimiento
     ordenes = OrdenSalida.objects.aggregate(
         total=Count('id'),
         completadas=Count('id', filter=Q(estatus='COMPLETADA')),
@@ -39,16 +40,20 @@ def dashboard_inventario(request):
     ordenes_completadas = ordenes['completadas'] or 0
     tasa_cumplimiento = (ordenes_completadas / total_ordenes * 100) if total_ordenes > 0 else 0
 
-    # --- KPI 4: Top 5 Artículos 
+    # los primeros cinco articulos
     top_articulos = Existencia.objects.values(
         'articulo__clave', 'articulo__descripcion'
     ).annotate(
         total_stock=Sum('cantidad_actual')
     ).filter(total_stock__gt=0).order_by('-total_stock')[:5]
 
+    # Ordenes activas
+    # Traemos las órdenes que no han sido cerradas, ordenadas por folio (las más antiguas primero)
+    ordenes_activas = OrdenSalida.objects.filter(
+        estatus__in=['PENDIENTE', 'EN_PROCESO']
+    ).order_by('id')
 
-    # --- TABLA INFERIOR Y BUSCADOR
-    # Aquí agrupamos todo el inventario usando los dobles guiones bajos
+    # TABLA INFERIOR Y BUSCADOR 
     inventario = Existencia.objects.values(
         'articulo__clave', 
         'articulo__descripcion', 
@@ -58,7 +63,6 @@ def dashboard_inventario(request):
         total_piezas=Sum('cantidad_actual')
     ).filter(total_piezas__gt=0).order_by('articulo__clave')
 
-    # Lógica de la barra de búsqueda superior
     query = request.GET.get('q', '')
     if query:
         inventario = inventario.filter(
@@ -67,7 +71,6 @@ def dashboard_inventario(request):
             Q(localizacion__clave__icontains=query)
         )
 
-    # Empaquetamos todo para enviarlo a tu HTML ortogonal
     contexto = {
         'total_entradas': flujo['entradas'] or 0,
         'total_salidas': flujo['salidas'] or 0,
@@ -77,6 +80,7 @@ def dashboard_inventario(request):
         'tasa_cumplimiento': round(tasa_cumplimiento, 1),
         'ordenes': ordenes,
         'top_articulos': top_articulos,
+        'ordenes_activas': ordenes_activas, # Pasamos los datos al HTML
         'inventario': inventario,
         'query': query,
     }
@@ -393,7 +397,7 @@ def ejecutar_surtido(request, orden_id):
             messages.error(request, f"Stock insuficiente en todo el almacén. Solicitando: {cantidad_solicitada}, Total disponible: {stock_global}")
             return redirect('inventario:ejecutar_surtido', orden_id=orden.id)
         
-        # --- ALGORITMO PEPS / FEFO PURO CON BLOQUEO ---
+        # ALGORITMO PEPS / FEFO PURO CON BLOQUEO 
         cantidad_restante_por_surtir = cantidad_solicitada
 
         # Entramos a la bóveda: a partir de aquí, nadie más toca estos lotes
@@ -453,10 +457,12 @@ def ejecutar_surtido(request, orden_id):
                 messages.success(request, f"Artículos asignados correctamente. Faltan {orden.meta_total - nuevo_total} unidades.")
                 return redirect('inventario:ejecutar_surtido', orden_id=orden.id)
                 
-    # Vista GET: Agrupamos el stock por artículo para mostrarlo de forma ejecutiva
+    # Vista GET: Agrupamos el stock por artículo y SUMAMOS la cantidad disponible real
     articulos_con_stock = Articulo.objects.filter(
         existencia__cantidad_actual__gt=0,
         existencia__estado_calidad='DISPONIBLE'
+    ).annotate(
+        stock_real_disponible=Sum('existencia__cantidad_actual', filter=Q(existencia__estado_calidad='DISPONIBLE'))
     ).distinct().order_by('clave')
 
     contexto = {
@@ -464,7 +470,7 @@ def ejecutar_surtido(request, orden_id):
         'detalles': orden.detalles.all().order_by('-id'),
         'total_surtido': total_surtido,
         'faltante': faltante,
-        'articulos': articulos_con_stock,
+        'articulos': articulos_con_stock, # Ahora cada artículo trae 'stock_real_disponible'
     }
     return render(request, 'inventario/surtido.html', contexto)
 
@@ -500,3 +506,235 @@ def crear_orden_salida(request):
         return redirect('inventario:ejecutar_surtido', orden_id=orden.id)
 
     return render(request, 'inventario/crear_orden_salida.html')
+
+@login_required
+def crear_tally_cabecera(request):
+    if request.method == 'POST':
+        # Identificacion Logstica
+        folio = request.POST.get('folio_entrada').strip()
+        cliente = request.POST.get('cliente').strip()
+        cortina = request.POST.get('cortina', '').strip()
+        piezas_esperadas = request.POST.get('piezas_esperadas', 0)
+        
+        # Documentos Referenciados
+        documento_ref = request.POST.get('documento_referencia', '').strip()
+        orden_ref = request.POST.get('orden_referencia', '').strip()
+        ro_po = request.POST.get('ro_po', '').strip()
+        pedimento = request.POST.get('pedimento', '').strip()
+        
+        # Transporte y Vehiculo
+        transporte = request.POST.get('transporte_linea', '').strip()
+        chofer = request.POST.get('nombre_chofer', '').strip()
+        tipo_transporte = request.POST.get('tipo_transporte', 'TRAILER')
+        placas_trac = request.POST.get('placas_tractor', '').strip()
+        placas_cj = request.POST.get('placas_caja', '').strip()
+        num_economico = request.POST.get('numero_economico', '').strip()
+        sellos = request.POST.get('sellos_seguridad', '').strip()
+        
+        # Maniobra y Tiempos
+        tipo_descarga = request.POST.get('tipo_descarga', 'PALETIZADO')
+        fecha_maniobra = request.POST.get('fecha_maniobra') or None
+        hora_llegada = request.POST.get('hora_llegada') or None
+        hora_termino = request.POST.get('hora_termino') or None
+        
+        # Auditoria
+        supervisor = request.POST.get('supervisor_turno', '').strip()
+        observaciones = request.POST.get('observaciones', '').strip()
+
+        # Candado de seguridad: Evitar hojas duplicadas
+        if Entrada.objects.filter(folio_entrada=folio).exists():
+            messages.error(request, f"El folio de hoja {folio} ya se encuentra registrado en el sistema.")
+            return redirect('inventario:crear_tally_cabecera')
+
+        # Creamos la cabecera inmutable con el 100% de los datos físicos
+        entrada = Entrada.objects.create(
+            folio_entrada=folio,
+            cliente=cliente,
+            cortina=cortina,
+            documento_referencia=documento_ref,
+            orden_referencia=orden_ref,
+            ro_po=ro_po,
+            pedimento=pedimento,
+            transporte_linea=transporte,
+            nombre_chofer=chofer,
+            tipo_transporte=tipo_transporte,
+            placas_tractor=placas_trac,
+            placas_caja=placas_cj,
+            numero_economico=num_economico,
+            sellos_seguridad=sellos,
+            tipo_descarga=tipo_descarga,
+            fecha_maniobra=fecha_maniobra,
+            hora_llegada=hora_llegada,
+            hora_termino=hora_termino,
+            supervisor_turno=supervisor,
+            observaciones=observaciones,
+            piezas_esperadas=piezas_esperadas,
+            usuario=request.user
+        )
+        
+        return redirect('inventario:capturar_tally_detalles', entrada_id=entrada.id)
+
+    # Vista GET: Mandamos los catálogos de opciones a la plantilla
+    return render(request, 'inventario/tally_cabecera.html', {
+        'choices_descarga': Entrada.TIPO_DESCARGA_CHOICES,
+        'choices_transporte': Entrada.TIPO_TRANSPORTE_CHOICES,
+    })
+@login_required
+def capturar_tally_detalles(request, entrada_id):
+    # recuperamos la cabecera creada
+    entrada = get_object_or_404(Entrada, id=entrada_id)
+
+    if request.method == 'POST':
+        try:
+            # Recibimos el paquete de datos dinámico desde JavaScript
+            data = json.loads(request.body)
+            partidas = data.get('partidas', [])
+
+            # Si se falla una linea se cancela todo el proceso
+            with transaction.atomic():
+                total_piezas_camion = Decimal('0.00')
+
+                # se recorrer los skus 
+                for partida in partidas:
+                    articulo = Articulo.objects.get(clave=partida['sku'])
+                    
+                    # Si no existe se crea y si ya existe se recicla
+                    lote, created_lote = Lote.objects.get_or_create(
+                        articulo=articulo,
+                        clave=partida['lote'].strip().upper(),
+                        defaults={'fecha_caducidad': partida['caducidad'] if partida['caducidad'] else None}
+                    )
+
+                    # Se recorren los racks de ese lote
+                    for dist in partida['distribuciones']:
+                        localizacion = Localizacion.objects.get(clave=dist['rack'])
+                        cantidad = Decimal(str(dist['cantidad']))
+
+                        # Guardamos en "detalle entrada"
+                        DetalleEntrada.objects.create(
+                            entrada=entrada,
+                            articulo=articulo,
+                            localizacion=localizacion,
+                            cantidad_recibida=cantidad,
+                            lote=lote
+                        )
+
+                        # Disparar el Movimiento de bitacora
+                        Movimiento.objects.create(
+                            tipo_movimiento='ENTRADA',
+                            folio_referencia=entrada.folio_entrada,
+                            articulo=articulo,
+                            localizacion=localizacion,
+                            lote=lote,
+                            estado_calidad='DISPONIBLE',
+                            cantidad_entrada=cantidad,
+                            usuario=request.user,
+                            observaciones=f'Descarga Masiva Tally | Tráiler: {entrada.placas_caja or "N/A"}'
+                        )
+
+                        # Sumar al Inventario Real (Existencias)
+                        existencia, created_ex = Existencia.objects.get_or_create(
+                            articulo=articulo,
+                            localizacion=localizacion,
+                            lote=lote,
+                            estado_calidad='DISPONIBLE',
+                            defaults={'cantidad_actual': Decimal('0.00')}
+                        )
+                        existencia.cantidad_actual += cantidad
+                        existencia.save()
+
+                        # Sumamos al acumulado matemático de la hoja
+                        total_piezas_camion += cantidad
+
+                entrada.total_piezas_final = total_piezas_camion
+                entrada.save()
+                if total_piezas_camion != entrada.piezas_esperadas:
+                    # Si no cuadra, disparamos un error que CANCELA automáticamente toda la transacción de la Base de Datos.
+                    raise ValueError(f"AUDITORÍA FALLIDA: El manifiesto exige {entrada.piezas_esperadas} piezas, pero se escanearon {total_piezas_camion}. Diferencia de {total_piezas_camion - entrada.piezas_esperadas} piezas. Se bloqueó el ingreso.")
+
+                # Si el código llega aquí, es porque la suma fue perfecta.
+                entrada.total_piezas_final = total_piezas_camion
+                entrada.save()
+
+            # respondemos en java que todo fue creado correctanmente
+            messages.success(request, f"¡Hoja Tally {entrada.folio_entrada} cerrada! Se ingresaron {total_piezas_camion} piezas al andén.")
+            url_impresion = reverse('inventario:imprimir_tally', kwargs={'entrada_id': entrada.id})
+            return JsonResponse({'status': 'success', 'redirect_url': url_impresion})
+
+        except Exception as e:
+            # Al minimo error lo mandamos
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+    # Mandamos los datos a la pantalla para el JS pueda mostrarlos y ocuparlos
+    articulos_json = list(Articulo.objects.filter(estatus=True).values('clave', 'descripcion'))
+    racks_json = list(Localizacion.objects.filter(estatus=True).values('clave'))
+
+    return render(request, 'inventario/capturar_tally_detalles.html', {
+        'entrada': entrada,
+        'articulos_json': articulos_json,
+        'racks_json': racks_json
+    })
+
+@login_required
+def imprimir_tally(request, entrada_id):
+    # Recuperamos el documento maestro y todos sus detalles anidados
+    entrada = get_object_or_404(Entrada, id=entrada_id)
+    detalles = entrada.detalles.all().select_related('articulo', 'localizacion', 'lote').order_by('articulo__clave', 'localizacion__clave')
+    
+    return render(request, 'inventario/imprimir_tally.html', {
+        'entrada': entrada,
+        'detalles': detalles,
+    })
+from django.core.exceptions import PermissionDenied
+from django.db.models import Q
+
+def es_supervisor(user):
+    # Verifica si el usuario pertenece al grupo configurado en el django 
+    return user.groups.filter(name='Supervisor').exists() or user.is_superuser
+
+@login_required
+def centro_documentacion(request):
+    # Candado definitivo a nivel Servidor: Si no es Supervisor, lo manda al Error 403
+    if not es_supervisor(request.user):
+        raise PermissionDenied
+
+    # Recuperamos los parámetros de búsqueda del único buscador
+    query = request.GET.get('q', '').strip()
+    fecha_inicio = request.GET.get('fecha_inicio', '')
+    fecha_fin = request.GET.get('fecha_fin', '')
+
+    # Querysets base
+    entradas = Entrada.objects.all().order_by('-fecha')
+    salidas = OrdenSalida.objects.filter(estatus='COMPLETADA').order_by('-fecha_creacion')
+
+    # Aplicamos el motor de búsqueda omnidireccional si hay texto
+    if query:
+        # Filtro inteligente para Entradas
+        entradas = entradas.filter(
+            Q(folio_entrada__icontains=query) |
+            Q(cliente__icontains=query) |
+            Q(ro_po__icontains=query) |
+            Q(documento_referencia__icontains=query) |
+            Q(orden_referencia__icontains=query) |
+            Q(pedimento__icontains=query) |
+            Q(transporte_linea__icontains=query)
+        )
+        # Filtro inteligente para Salida
+        salidas = salidas.filter(
+            Q(folio_salida__icontains=query) |
+            Q(destino__icontains=query) |
+            Q(asignado_a__icontains=query)
+        )
+
+    # Filtro por rango de fechas si se especifican
+    if fecha_inicio and fecha_fin:
+        entradas = entradas.filter(fecha__date__range=[fecha_inicio, fecha_fin])
+        salidas = salidas.filter(fecha_creacion__date__range=[fecha_inicio, fecha_fin])
+
+    return render(request, 'inventario/centro_documentacion.html', {
+        'entradas': entradas,
+        'salidas': salidas,
+        'query': query,
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
+    })
