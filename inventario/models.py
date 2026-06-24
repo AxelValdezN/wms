@@ -45,7 +45,7 @@ class Lote(models.Model):
             )
         ]
 
-    def _str_(self):
+    def __str__(self):
         return f"Lote {self.clave} | {self.articulo.clave}"    
 class Existencia(models.Model):
     ESTADO_CHOICES = [

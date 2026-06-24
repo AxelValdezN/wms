@@ -6,19 +6,16 @@ from .models import Movimiento, Existencia
 @receiver(post_save, sender=Movimiento)
 def actualizar_existencia(sender, instance, created, **kwargs):
     if created:
-        # : garantisamos que la existencia base esté ahí (sin el bloqueo aun)
-        existencia_base, _ = Existencia.objects.get_or_create(
-            articulo=instance.articulo,
-            localizacion=instance.localizacion,
-            lote=instance.lote,
-            estado_calidad=instance.estado_calidad,
-            defaults={'cantidad_actual': 0}
-        )
-
-        # Abrimos la transiction atomic y ponemos el candado a ESA fila exacta
+        # Abrimos la bóveda ANTES de buscar o crear
         with transaction.atomic():
-            # select_for_update() impide que otro Signal toque este saldo al mismo tiempo
-            existencia_lock = Existencia.objects.select_for_update().get(id=existencia_base.id)
+            # select_for_update() encadena el bloqueo desde el momento de la consulta
+            existencia_lock, _ = Existencia.objects.select_for_update().get_or_create(
+                articulo=instance.articulo,
+                localizacion=instance.localizacion,
+                lote=instance.lote,
+                estado_calidad=instance.estado_calidad,
+                defaults={'cantidad_actual': 0}
+            )
             
             # Matemática fría y aislada
             existencia_lock.cantidad_actual += instance.cantidad_entrada

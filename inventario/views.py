@@ -632,17 +632,6 @@ def capturar_tally_detalles(request, entrada_id):
                             observaciones=f'Descarga Masiva Tally | Tráiler: {entrada.placas_caja or "N/A"}'
                         )
 
-                        # Sumar al Inventario Real (Existencias)
-                        existencia, created_ex = Existencia.objects.get_or_create(
-                            articulo=articulo,
-                            localizacion=localizacion,
-                            lote=lote,
-                            estado_calidad='DISPONIBLE',
-                            defaults={'cantidad_actual': Decimal('0.00')}
-                        )
-                        existencia.cantidad_actual += cantidad
-                        existencia.save()
-
                         # Sumamos al acumulado matemático de la hoja
                         total_piezas_camion += cantidad
 
