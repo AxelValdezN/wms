@@ -78,13 +78,23 @@ WSGI_APPLICATION = 'wms_core.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get(
-            'DATABASE_URL', 
-            'postgresql://tu_usuario:tu_password@localhost:5432/tu_base_de_datos'
-        )
-    )
-}
+     'default': dj_database_url.config(
+         default=os.environ.get(
+             'DATABASE_URL', 
+             'postgresql://tu_usuario:tu_password@localhost:5432/tu_base_de_datos'
+         )
+     )
+ }
+#DATABASES = {
+#    'default': {
+#       'ENGINE': 'django.db.backends.postgresql',
+#       'NAME': 'wms_pathlogistic',
+#       'USER': 'postgres',
+#       'PASSWORD': 'admin', 
+#       'HOST': 'localhost',
+#       'PORT': '5432',
+#   }
+#}
 
 
 # Password validation
