@@ -81,7 +81,7 @@ DATABASES = {
      'default': dj_database_url.config(
          default=os.environ.get(
              'DATABASE_URL', 
-             'postgresql://tu_usuario:tu_password@localhost:5432/tu_base_de_datos'
+             'postgresql://wms_pathlogistic:admin@localhost:5432/django.db.backends.postgresql'
          )
      )
  }
