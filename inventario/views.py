@@ -2,11 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from decimal import Decimal
-from .models import DetalleEntrada, Entrada, Existencia, Articulo, Localizacion, Movimiento, OrdenSalida, DetalleSalida, Lote
+from .models import DetalleEntrada, Entrada, Existencia, Articulo, Localizacion, Movimiento, OrdenSalida, DetalleSalida, Lote, Embarque
 from django.db import transaction
 from django.utils.dateparse import parse_date
 from django.db.models import Q, F, Sum, Count
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404    
 import time, json
 from django.utils import timezone
 from datetime import timedelta
@@ -726,4 +726,71 @@ def centro_documentacion(request):
         'query': query,
         'fecha_inicio': fecha_inicio,
         'fecha_fin': fecha_fin,
+    })
+
+@login_required
+def registrar_embarque(request):
+    if request.method == 'POST':
+        # Recibimos los datps del transporte
+        folio_embarque = request.POST.get('folio_embarque')
+        cortina = request.POST.get('cortina')
+        transporte_linea = request.POST.get('transporte_linea')
+        nombre_chofer = request.POST.get('nombre_chofer')
+        placas_tractor = request.POST.get('placas_tractor')
+        placas_caja = request.POST.get('placas_caja')
+        sellos_seguridad = request.POST.get('sellos_seguridad')
+        
+        # se reciben las ID de las casillas que se marcaron
+        ordenes_ids = request.POST.getlist('ordenes_seleccionadas')
+        
+        # Asegurar que el personal selecciono las mercancias
+        if not ordenes_ids:
+            messages.error(request, "ERROR: DEBE SELECCIONAR AL MENOS UNA ORDEN PARA CARGAR AL TRÁILER.")
+            ordenes_disponibles = OrdenSalida.objects.filter(estatus='COMPLETADA', embarque__isnull=True)
+            return render(request, 'registrar_embarque.html', {'ordenes_disponibles': ordenes_disponibles})
+
+        try:
+            # Aislamiento total mediante Transacción Atómica
+            with transaction.atomic():
+                
+                # Construir el Contenedor Virtual (creacion del registro maestro del embarque)
+                nuevo_embarque = Embarque.objects.create(
+                    folio_embarque=folio_embarque,
+                    cortina=cortina,
+                    transporte_linea=transporte_linea,
+                    nombre_chofer=nombre_chofer,
+                    placas_tractor=placas_tractor,
+                    placas_caja=placas_caja,
+                    sellos_seguridad=sellos_seguridad,
+                    auditor_rampa=request.user,
+                    estatus='CARGANDO'
+                )
+                
+                # FASE 3: El Abordaje (Asignación Relacional en base de datos)
+                # Filtramos las órdenes seleccionadas que siguen huérfanas en rampa
+                ordenes_a_embarcar = OrdenSalida.objects.filter(id__in=ordenes_ids, embarque__isnull=True)
+                
+                for orden in ordenes_a_embarcar:
+                    orden.embarque = nuevo_embarque
+                    orden.estatus = 'DESPACHADO'  # Cerramos el ciclo comercial de la orden
+                    orden.save()
+                
+                # Una vez que los registros internos se amarraron, sellamos el estatus del camión
+                nuevo_embarque.estatus = 'DESPACHADO'
+                nuevo_embarque.save()
+                
+            # Éxito absoluto en la transacción
+            messages.success(request, f"DESPACHO EXITOSO: UNIDAD {folio_embarque} EN RUTA. CORTINA LIBERADA.")
+            return redirect('registrar_embarque')
+            
+        except Exception as e:
+            # Si algo falla aquí adentro, la transacción atómica borra el camión y regresa las órdenes a rampa
+            messages.error(request, f"ERROR CRÍTICO DE CONCURRENCIA EN POSTGRESQL: {str(e)}")
+            
+    # OPERACIÓN GET: Alimentar la tabla del panel derecho con órdenes listas en rampa
+    # Buscamos órdenes que estén completadas internamente pero que no pertenezcan a ningún tráiler todavía
+    ordenes_disponibles = OrdenSalida.objects.filter(estatus='COMPLETADA', embarque__isnull=True)
+    
+    return render(request, 'registrar_embarque.html', {
+        'ordenes_disponibles': ordenes_disponibles
     })

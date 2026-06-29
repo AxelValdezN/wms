@@ -4,7 +4,7 @@
 <!-- Fondo gris de la aplicación para que la hoja resalte como un documento físico -->
 <div class="min-h-screen bg-[#F9F9F9] py-8 print:bg-white print:py-0 print:min-h-0" style="font-family: 'Space Grotesk', sans-serif;">
     
-    <!-- Barra de Herramientas Flotante (Solo Web) -->
+    <!-- Barra de Herramientas Flotante -->
     <div class="max-w-4xl mx-auto px-4 mb-6 flex justify-between items-center print:hidden">
         <a href="{% url 'inventario:dashboard' %}" class="flex items-center gap-2 text-[#0E2F2A] hover:text-black font-bold uppercase tracking-wider text-sm transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -16,7 +16,7 @@
         </button>
     </div>
 
-    <!-- EL DOCUMENTO (Hoja A4) -->
+    <!-- EL DOCUMENTO -->
     <div class="max-w-4xl mx-auto bg-white shadow-2xl border border-gray-300 print:shadow-none print:border-none print:max-w-full">
         
         <div class="p-8 sm:p-12 print:p-0">
@@ -62,17 +62,17 @@
                 <tbody class="bg-white">
                     {% for item in detalles %}
                     <tr>
-                        <!-- Columna: Checkbox Físico -->
+                        <!-- Columna checkbox Físico -->
                         <td class="py-4 px-4 text-center border-2 border-[#0E2F2A]">
                             <div class="w-6 h-6 border-2 border-gray-300 mx-auto rounded-sm print:border-black print:border-2"></div>
                         </td>
                         
-                        <!-- Columna: RACK -->
+                        <!-- Columna rack -->
                         <td class="py-4 px-4 border-2 border-[#0E2F2A] bg-gray-50">
                             <span class="block text-2xl font-black text-[#000000] uppercase">{{ item.localizacion.clave }}</span>
                         </td>
                         
-                        <!-- Columna: SKU y Lote agrupados para limpiar el diseño -->
+                        <!-- Columna sku y Lote agrupados para limpiar el diseño -->
                         <td class="py-4 px-4 border-2 border-[#0E2F2A]">
                             <span class="block text-sm font-bold text-[#0E2F2A] uppercase">{{ item.articulo.clave }}</span>
                             <span class="block text-[11px] font-bold text-gray-500 mt-1 uppercase tracking-wider">LOTE PEPS: <span class="text-black">{{ item.lote }}</span></span>
@@ -106,7 +106,7 @@
                 </tfoot>
             </table>
 
-            <!-- Bloque de Auditoría y Firmas -->
+            <!-- Bloque de Auditoria y Firmas -->
             <div class="grid grid-cols-2 gap-12 mt-16 pt-8 print:mt-12 print:pt-4">
                 <div class="text-center">
                     <div class="border-t-2 border-[#000000] mx-4 pt-2">
