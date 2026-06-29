@@ -174,6 +174,14 @@ class OrdenSalida(models.Model):
     destino = models.CharField(max_length=100)
     meta_total = models.DecimalField(max_digits=12, decimal_places=2)
     estatus = models.CharField(max_length=20, choices=ESTATUS_CHOICES, default='PENDIENTE')
+
+    embarque = models.ForeignKey(
+        'Embarque', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='ordenes_asignadas'
+    )
     
     def _str_(self):
         return f"Orden {self.folio_salida} | Destino: {self.destino} | Asignado a: {self.asignado_a}"
@@ -188,4 +196,25 @@ class DetalleSalida(models.Model):
     def _str_(self):
         return f"{self.cantidad_surtida} de {self.articulo.clave} (Lote: {self.lote})"
     
+class Embarque(models.Model):
+    ESTATUS_CHOICES = [
+        ('CARGANDO', 'EN RAMPA / PROCESO DE CARGA'),
+        ('DESPACHADO', 'PUERTAS SELLADAS / EN TRÁNSITO'),
+    ]
     
+    folio_embarque = models.CharField(max_length=50, unique=True)
+    cortina = models.CharField(max_length=20)  # Filtro para las 12 cortinas
+    
+    # Datos de control del transporte exterior
+    transporte_linea = models.CharField(max_length=150)
+    nombre_chofer = models.CharField(max_length=150)
+    placas_tractor = models.CharField(max_length=50)
+    placas_caja = models.CharField(max_length=50, blank=True, null=True)
+    sellos_seguridad = models.CharField(max_length=150, blank=True, null=True)
+    
+    estatus = models.CharField(max_length=20, choices=ESTATUS_CHOICES, default='CARGANDO')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    auditor_rampa = models.ForeignKey(User, on_delete=models.RESTRICT)
+
+    def __str__(self):
+        return f"EMBARQUE {self.folio_embarque} | CORTINA {self.cortina} | {self.estatus}"

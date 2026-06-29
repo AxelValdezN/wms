@@ -57,6 +57,12 @@
                 <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 Liberar Calidad
             </a>
+            <a href="{% url 'registrar_embarque' %}" class="flex items-center px-6 py-3 mt-1 text-gray-300 hover:bg-neutral-800 hover:text-white transition-colors">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                </svg>
+                <span class="text-xs font-bold tracking-wider">DESPACHO FINAL</span>
+            </a>
 
             {% if request.user.is_superuser or perms.inventario.view_articulo or perms.inventario.view_localizacion %}
             <div class="px-4 text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 mt-8">Base de Datos</div>
@@ -89,6 +95,7 @@
                 Historial Docs
             </a>
             {% endif %}
+            
 
         </nav>
 
