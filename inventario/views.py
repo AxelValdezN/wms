@@ -781,7 +781,7 @@ def registrar_embarque(request):
                 
             # Éxito absoluto en la transacción
             messages.success(request, f"DESPACHO EXITOSO: UNIDAD {folio_embarque} EN RUTA. CORTINA LIBERADA.")
-            return redirect('registrar_embarque')
+            return redirect('inventario:registrar_embarque')
             
         except Exception as e:
             # Si algo falla aquí adentro, la transacción atómica borra el camión y regresa las órdenes a rampa

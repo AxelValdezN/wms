@@ -1,146 +1,158 @@
 {% extends 'inventario/base.html' %}
 
 {% block content %}
-<div class="w-full min-h-screen bg-white p-8 font-mono text-sm text-neutral-900">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-[#F9F9F9]" style="font-family: 'Space Grotesk', sans-serif;">
     
-    <div class="border-b-2 border-neutral-900 pb-4 mb-8 flex justify-between items-end">
+    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-gray-200 pb-4">
         <div>
-            <h1 class="text-3xl font-black tracking-tight uppercase">Despacho de Órdenes</h1>
-            <p class="text-xs text-neutral-500 mt-2 uppercase tracking-widest">Logística Outbound & Trazabilidad de Transporte</p>
+            <h1 class="text-3xl font-bold text-[#0E2F2A] tracking-tight uppercase">Despacho de Órdenes</h1>
+            <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Logística Outbound & Trazabilidad de Transporte</p>
         </div>
-        <div class="text-right">
-            <span class="bg-neutral-900 text-white px-4 py-2 font-bold text-xs uppercase tracking-wider">
-                MODO: CONTROL DE EMBARQUES
-            </span>
+        
+        <div class="flex items-center gap-2 border border-[#0E2F2A] bg-white text-[#0E2F2A] px-5 py-2.5 text-xs font-bold uppercase tracking-wider cursor-default">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Modo: Control de Embarques
         </div>
     </div>
 
-    <form method="POST" action="">
+    <form method="POST" action="" class="w-full">
         {% csrf_token %}
         
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <div class="lg:col-span-5 flex flex-col gap-6">
-                
-                <div class="bg-neutral-900 text-white p-3">
-                    <h2 class="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
-                        Parámetros de la Unidad
-                    </h2>
-                </div>
-                
-                <div>
-                    <h3 class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-4 border-b border-neutral-200 pb-1">1. Identificación y Control</h3>
+            <div class="lg:col-span-5">
+                <div class="bg-white border border-gray-200 shadow-sm rounded-none">
                     
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase mb-1">Folio Embarque</label>
-                            <input type="text" name="folio_embarque" placeholder="EJ. EM-10023" required
-                                   class="w-full bg-white border border-neutral-300 p-2.5 text-sm focus:outline-none focus:border-neutral-900 rounded-none transition-colors">
+                    <div class="bg-[#0E2F2A] px-6 py-4 border-b-4 border-red-500">
+                        <h2 class="text-white text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                            Parámetros de la Unidad
+                        </h2>
+                    </div>
+
+                    <div class="p-6 space-y-6">
+                        
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-1">1. Identificación y Control</h3>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Folio Embarque</label>
+                                    <input type="text" name="folio_embarque" placeholder="EJ. EM-10023" required
+                                           class="w-full rounded-none border border-gray-300 p-2 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Cortina / Andén</label>
+                                    <select name="cortina" required class="w-full rounded-none border border-gray-300 p-2 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors cursor-pointer">
+                                        <option value="" disabled selected>SELECCIONAR...</option>
+                                        {% for c in "123456789101112" %}
+                                        <option value="CORTINA_{{ c }}">CORTINA {{ c }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Línea de Transporte</label>
+                                <input type="text" name="transporte_linea" placeholder="EJ. TRANSPORTES MONTERREY" required
+                                       class="w-full rounded-none border border-gray-300 p-2 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Operador / Chofer</label>
+                                <input type="text" name="nombre_chofer" placeholder="NOMBRE COMPLETO SEGÚN IDENTIFICACIÓN" required
+                                       class="w-full rounded-none border border-gray-300 p-2 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase mb-1">Cortina / Andén</label>
-                            <select name="cortina" required
-                                    class="w-full bg-white border border-neutral-300 p-2.5 text-sm focus:outline-none focus:border-neutral-900 rounded-none transition-colors">
-                                <option value="">SELECCIONAR...</option>
-                                {% for c in "123456789101112" %}
-                                <option value="CORTINA_{{ c }}">CORTINA {{ c }}</option>
-                                {% endfor %}
-                            </select>
+
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-1 mt-6">2. Seguridad del Equipo</h3>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Placas Tractor</label>
+                                    <input type="text" name="placas_tractor" placeholder="ABC-123-A" required
+                                           class="w-full rounded-none border border-gray-300 p-2 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Placas Caja</label>
+                                    <input type="text" name="placas_caja" placeholder="XYZ-987-B"
+                                           class="w-full rounded-none border border-gray-300 p-2 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Sellos de Seguridad</label>
+                                <input type="text" name="sellos_seguridad" placeholder="SELLO METÁLICO FOLIO: #99213"
+                                       class="w-full rounded-none border border-gray-300 p-2 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors">
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="mb-4">
-                        <label class="block text-xs font-bold uppercase mb-1">Línea de Transporte</label>
-                        <input type="text" name="transporte_linea" placeholder="EJ. TRANSPORTES MONTERREY" required
-                               class="w-full bg-white border border-neutral-300 p-2.5 text-sm focus:outline-none focus:border-neutral-900 rounded-none transition-colors">
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-xs font-bold uppercase mb-1">Operador / Chofer</label>
-                        <input type="text" name="nombre_chofer" placeholder="NOMBRE COMPLETO SEGÚN IDENTIFICACIÓN" required
-                               class="w-full bg-white border border-neutral-300 p-2.5 text-sm focus:outline-none focus:border-neutral-900 rounded-none transition-colors">
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-4 border-b border-neutral-200 pb-1">2. Seguridad del Equipo</h3>
-                    
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase mb-1">Placas Tractor</label>
-                            <input type="text" name="placas_tractor" placeholder="ABC-123-A" required
-                                   class="w-full bg-white border border-neutral-300 p-2.5 text-sm focus:outline-none focus:border-neutral-900 rounded-none transition-colors uppercase">
+                        <div class="pt-4">
+                            <button type="submit" class="w-full bg-[#0E2F2A] text-white px-6 py-4 rounded-none font-bold text-sm uppercase tracking-wider hover:bg-black transition-colors shadow-md border border-transparent hover:border-[#0E2F2A] flex justify-center items-center gap-2">
+                                Sellar y Despachar Unidad
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase mb-1">Placas Caja</label>
-                            <input type="text" name="placas_caja" placeholder="XYZ-987-B"
-                                   class="w-full bg-white border border-neutral-300 p-2.5 text-sm focus:outline-none focus:border-neutral-900 rounded-none transition-colors uppercase">
-                        </div>
+                        
                     </div>
-
-                    <div class="mb-6">
-                        <label class="block text-xs font-bold uppercase mb-1">Sellos de Seguridad</label>
-                        <input type="text" name="sellos_seguridad" placeholder="SELLO METÁLICO FOLIO: #99213"
-                               class="w-full bg-white border border-neutral-300 p-2.5 text-sm focus:outline-none focus:border-neutral-900 rounded-none transition-colors uppercase">
-                    </div>
-                </div>
-
-                <div>
-                    <button type="submit" 
-                            class="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-bold p-4 uppercase tracking-widest transition-colors rounded-none flex justify-center items-center gap-2">
-                        Sellar y Despachar Unidad
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </button>
                 </div>
             </div>
 
             <div class="lg:col-span-7 flex flex-col gap-6">
                 
-                <div class="bg-neutral-50 border border-neutral-200 p-4 flex gap-4 items-start">
-                    <div class="bg-white border border-neutral-200 p-2 shrink-0">
-                        <svg class="w-5 h-5 text-neutral-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                <div class="bg-[#EDEDE2] border border-gray-200 p-6 flex items-start gap-4 shadow-sm">
+                    <div class="bg-white p-3 border border-gray-300 text-blue-800">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                     </div>
                     <div>
-                        <h4 class="text-xs font-bold uppercase mb-1 text-neutral-900 tracking-wider">SOP: Auditoría y Cierre de Rampa</h4>
-                        <p class="text-[11px] leading-relaxed text-neutral-500 uppercase">
-                            Selecciona las órdenes físicas que se cargarán en la unidad. Al confirmar el despacho, el estatus cambiará a <span class="font-bold text-neutral-900">DESPACHADO</span>, liberando la cortina y congelando la trazabilidad.
+                        <h3 class="text-sm font-bold text-[#0E2F2A] uppercase tracking-wider mb-1">SOP: Auditoría y Cierre de Rampa</h3>
+                        <p class="text-xs font-medium text-gray-600 uppercase tracking-wide leading-relaxed mb-3">
+                            Selecciona las órdenes físicas que se cargarán en la unidad. Al confirmar el despacho, ocurrirán dos eventos simultáneos:
                         </p>
+                        <ul class="text-xs font-medium text-gray-500 uppercase tracking-wide space-y-1 ml-4 list-disc">
+                            <li>El estatus de las órdenes cambiará a <span class="font-bold text-[#0E2F2A]">DESPACHADO</span>, cerrando el ciclo logístico.</li>
+                            <li>La cortina asignada se liberará automáticamente en la Torre de Control.</li>
+                        </ul>
                     </div>
                 </div>
 
-                <div class="mt-2">
-                    <h3 class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-4 border-b border-neutral-200 pb-1">Mercancía Disponible en Andén</h3>
+                <div class="bg-white border border-gray-200 shadow-sm rounded-none flex-grow overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Mercancía Disponible en Andén</h3>
+                    </div>
                     
-                    <table class="w-full text-left border-collapse border-b border-neutral-300">
-                        <thead>
-                            <tr class="bg-neutral-900 text-white text-[10px] uppercase tracking-widest">
-                                <th class="p-3 font-medium w-16 text-center">Sel.</th>
-                                <th class="p-3 font-medium">Folio Orden</th>
-                                <th class="p-3 font-medium">Destino</th>
-                                <th class="p-3 font-medium text-right">Volumen Surtido</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-neutral-200 text-xs">
-                            {% for orden in ordenes_disponibles %}
-                            <tr class="hover:bg-neutral-50 transition-colors">
-                                <td class="p-3 text-center">
-                                    <input type="checkbox" name="ordenes_seleccionadas" value="{{ orden.id }}"
-                                           class="w-4 h-4 border-neutral-400 rounded-none focus:ring-0 accent-neutral-900 cursor-pointer">
-                                </td>
-                                <td class="p-3 font-bold text-neutral-900">{{ orden.folio }}</td>
-                                <td class="p-3 text-neutral-600 uppercase">{{ orden.destino }}</td>
-                                <td class="p-3 font-bold text-right">{{ orden.total_surtido }} PZA</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="p-8 text-center text-neutral-400 uppercase tracking-wider text-xs bg-neutral-50">
-                                    No hay órdenes pendientes de despacho en rampa.
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-[#0E2F2A] text-white text-[10px] uppercase tracking-widest">
+                                    <th class="p-4 font-medium w-16 text-center border-r border-[#1a4a42]">Sel.</th>
+                                    <th class="p-4 font-medium border-r border-[#1a4a42]">Folio Orden</th>
+                                    <th class="p-4 font-medium border-r border-[#1a4a42]">Destino</th>
+                                    <th class="p-4 font-medium text-right">Volumen Surtido</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 text-xs">
+                                {% for orden in ordenes_disponibles %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 text-center border-r border-gray-100">
+                                        <input type="checkbox" name="ordenes_seleccionadas" value="{{ orden.id }}"
+                                               class="w-4 h-4 border-gray-300 rounded-none text-[#0E2F2A] focus:ring-[#0E2F2A] cursor-pointer">
+                                    </td>
+                                    <td class="p-4 font-bold text-[#0E2F2A] border-r border-gray-100">{{ orden.folio }}</td>
+                                    <td class="p-4 text-gray-600 font-medium uppercase border-r border-gray-100">{{ orden.destino }}</td>
+                                    <td class="p-4 font-bold text-gray-800 text-right">{{ orden.total_surtido }} PZA</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="p-10 text-center text-gray-400 uppercase tracking-wider text-xs bg-gray-50 font-bold">
+                                        No hay órdenes pendientes de despacho en rampa.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
             </div>
