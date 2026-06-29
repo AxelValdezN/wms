@@ -791,6 +791,6 @@ def registrar_embarque(request):
     # Buscamos órdenes que estén completadas internamente pero que no pertenezcan a ningún tráiler todavía
     ordenes_disponibles = OrdenSalida.objects.filter(estatus='COMPLETADA', embarque__isnull=True)
     
-    return render(request, 'registrar_embarque.html', {
+    return render(request, 'inventario/registrar_embarque.html', {
         'ordenes_disponibles': ordenes_disponibles
     })
