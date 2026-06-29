@@ -747,7 +747,7 @@ def registrar_embarque(request):
         if not ordenes_ids:
             messages.error(request, "ERROR: DEBE SELECCIONAR AL MENOS UNA ORDEN PARA CARGAR AL TRÁILER.")
             ordenes_disponibles = OrdenSalida.objects.filter(estatus='COMPLETADA', embarque__isnull=True)
-            return render(request, 'registrar_embarque.html', {'ordenes_disponibles': ordenes_disponibles})
+            return render(request, 'inventario/registrar_embarque.html', {'ordenes_disponibles': ordenes_disponibles})
 
         try:
             # Aislamiento total mediante Transacción Atómica
