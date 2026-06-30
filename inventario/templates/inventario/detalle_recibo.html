@@ -3,56 +3,137 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-[#F9F9F9]" style="font-family: 'Space Grotesk', sans-serif;">
     
-    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-gray-300 pb-4">
+    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-gray-200 pb-4">
         <div>
-            <h1 class="text-3xl font-bold text-[#0E2F2A] tracking-tight uppercase">Auditoría de Transacción</h1>
-            <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Radiografía de Recibo Inbound (Solo Lectura)</p>
+            <h1 class="text-3xl font-bold text-[#0E2F2A] tracking-tight uppercase">Auditoría Documental</h1>
+            <p class="text-sm font-medium text-gray-500 mt-1 uppercase tracking-wider">Radiografía Transaccional de Ingreso Inbound (Solo Lectura)</p>
         </div>
         
-        <a href="javascript:history.back()" class="flex items-center gap-2 border border-[#0E2F2A] text-[#0E2F2A] bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-[#0E2F2A] hover:text-white transition-colors cursor-pointer">
+        <a href="javascript:history.back()" class="flex items-center gap-2 border border-[#0E2F2A] text-[#0E2F2A] bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-[#0E2F2A] hover:text-white transition-colors cursor-pointer rounded-none">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             Volver al Historial
         </a>
     </div>
 
-    <div class="grid grid-cols-1 gap-8">
+    <div class="space-y-6">
         
-        <div class="bg-white border border-gray-300 shadow-sm rounded-none">
-            <div class="bg-[#0E2F2A] px-6 py-3 border-b-2 border-neutral-900">
-                <h2 class="text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    1. Información del Documento Maestro
-                </h2>
+        <div class="bg-white border border-gray-300 rounded-none grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+            <div class="p-6 bg-gray-50">
+                <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Folio Único Recibo</span>
+                <span class="block text-2xl font-black text-[#0E2F2A]">{{ recibo.folio_entrada }}</span>
             </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-200 p-0">
-                <div class="p-6 bg-gray-50">
-                    <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Folio de Recibo</span>
-                    <span class="block text-xl font-black text-[#0E2F2A]">{{ recibo.id|default:"N/A" }}</span>
-                </div>
-                
-                <div class="p-6">
-                    <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Fecha de Maniobra</span>
-                    <span class="block text-sm font-bold text-gray-900 uppercase">{{ recibo.fecha_creacion|date:"d/m/Y H:i"|default:"--" }}</span>
-                </div>
-                
-                <div class="p-6">
-                    <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Capturado Por</span>
-                    <span class="block text-sm font-bold text-gray-900 uppercase">{{ recibo.usuario.username|default:"SISTEMA" }}</span>
-                </div>
-                
-                <div class="p-6 bg-gray-50">
-                    <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Cliente / Proveedor</span>
-                    <span class="block text-sm font-bold text-gray-900 uppercase">{{ recibo.proveedor|default:"--" }}</span>
-                </div>
+            <div class="p-6">
+                <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Cliente / Cuenta</span>
+                <span class="block text-sm font-bold text-gray-900 uppercase">{{ recibo.cliente }}</span>
+            </div>
+            <div class="p-6 bg-[#EDEDE2]/30">
+                <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Volumen Documental (Esperado)</span>
+                <span class="block text-lg font-bold text-gray-600">{{ recibo.piezas_esperadas|floatformat:2 }} PZA</span>
+            </div>
+            <div class="p-6 bg-[#0E2F2A]/5">
+                <span class="block text-[10px] font-bold text-[#0E2F2A] uppercase tracking-widest mb-1">Volumen Físico Validado (Real)</span>
+                <span class="block text-xl font-black text-[#0E2F2A]">{{ recibo.total_piezas_final|floatformat:2 }} PZA</span>
             </div>
         </div>
 
-        <div class="bg-white border border-gray-300 shadow-sm rounded-none overflow-hidden">
-            <div class="bg-gray-100 px-6 py-3 border-b border-gray-300">
-                <h3 class="text-xs font-bold text-gray-800 uppercase tracking-widest flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                    2. Desglose de Partidas Físicas
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="bg-white border border-gray-300 rounded-none flex flex-col">
+                <div class="bg-[#0E2F2A] px-4 py-2.5 border-b border-neutral-900">
+                    <h2 class="text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                        Documentación Amarrada
+                    </h2>
+                </div>
+                <div class="p-4 flex-grow space-y-3 text-xs">
+                    <div class="flex justify-between py-1.5 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">RO / PO:</span>
+                        <span class="text-[#0E2F2A] font-black">{{ recibo.ro_po|default:"--" }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">Invoice / Factura:</span>
+                        <span class="text-gray-800 font-bold">{{ recibo.documento_referencia|default:"--" }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">Orden Interna:</span>
+                        <span class="text-gray-800 font-bold">{{ recibo.orden_referencia|default:"--" }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5">
+                        <span class="text-gray-400 font-bold uppercase">Pedimento Aduanal:</span>
+                        <span class="text-gray-800 font-bold">{{ recibo.pedimento|default:"--" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-300 rounded-none flex flex-col">
+                <div class="bg-[#0E2F2A] px-4 py-2.5 border-b border-neutral-900">
+                    <h2 class="text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                        Control de Transporte
+                    </h2>
+                </div>
+                <div class="p-4 flex-grow space-y-2.5 text-xs">
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">Línea / Fletera:</span>
+                        <span class="text-gray-900 font-bold uppercase">{{ recibo.transporte_linea|default:"--" }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">Operador:</span>
+                        <span class="text-gray-900 font-bold uppercase text-right max-w-[180px] truncate">{{ recibo.nombre_chofer|default:"--" }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">Tipo de Equipo:</span>
+                        <span class="text-gray-700 font-bold bg-gray-100 px-1.5 py-0.5 text-[10px]">{{ recibo.get_tipo_transporte_display|default:recibo.tipo_transporte }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">Placas (Tractor/Caja):</span>
+                        <span class="text-gray-800 font-bold uppercase">{{ recibo.placas_tractor|default:"--" }} / {{ recibo.placas_caja|default:"--" }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">No. Económico:</span>
+                        <span class="text-gray-800 font-bold uppercase">{{ recibo.numero_economico|default:"--" }}</span>
+                    </div>
+                    <div class="flex justify-between py-1">
+                        <span class="text-gray-400 font-bold uppercase">Sellos de Seguridad:</span>
+                        <span class="text-red-600 font-black uppercase max-w-[180px] truncate">{{ recibo.sellos_seguridad|default:"SIN SELLOS" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-gray-300 rounded-none flex flex-col">
+                <div class="bg-[#0E2F2A] px-4 py-2.5 border-b border-neutral-900">
+                    <h2 class="text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                        Auditoría de Tiempos y Personal
+                    </h2>
+                </div>
+                <div class="p-4 flex-grow space-y-3 text-xs">
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">Fecha Operación:</span>
+                        <span class="text-gray-900 font-bold">{{ recibo.fecha_maniobra|date:"d/m/Y"|default:"--" }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">Ventana de Tiempo:</span>
+                        <span class="text-gray-800 font-bold">{{ recibo.hora_llegada|time:"H:i"|default:"--" }} - {{ recibo.hora_termino|time:"H:i"|default:"--" }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">Esquema Descarga:</span>
+                        <span class="text-gray-800 font-bold uppercase">{{ recibo.get_tipo_descarga_display|default:recibo.tipo_descarga }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-gray-100">
+                        <span class="text-gray-400 font-bold uppercase">Supervisor de Turno:</span>
+                        <span class="text-[#0E2F2A] font-black uppercase">{{ recibo.supervisor_turno|default:"--" }}</span>
+                    </div>
+                    <div class="flex justify-between py-1">
+                        <span class="text-gray-400 font-bold uppercase">Sello Digital Sistema:</span>
+                        <span class="text-gray-400 font-mono text-[10px]">{{ recibo.fecha|date:"d/m/Y H:i:s" }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bg-white border border-gray-300 rounded-none overflow-hidden">
+            <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                <h3 class="text-xs font-bold text-gray-800 uppercase tracking-widest">
+                    Partidas Físicas Capturadas en Andén (Recibo Ciego)
                 </h3>
             </div>
             
@@ -62,35 +143,30 @@
                         <tr class="bg-[#0E2F2A] text-white text-[10px] uppercase tracking-widest">
                             <th class="p-4 font-medium border-r border-[#1a4a42] w-12 text-center">#</th>
                             <th class="p-4 font-medium border-r border-[#1a4a42]">Artículo (SKU)</th>
-                            <th class="p-4 font-medium border-r border-[#1a4a42]">Descripción</th>
-                            <th class="p-4 font-medium border-r border-[#1a4a42]">Lote / Caducidad</th>
+                            <th class="p-4 font-medium border-r border-[#1a4a42]">Descripción Técnica</th>
+                            <th class="p-4 font-medium border-r border-[#1a4a42]">Rack / Ubicación Asignada</th>
+                            <th class="p-4 font-medium border-r border-[#1a4a42]">Lote Operativo</th>
                             <th class="p-4 font-medium text-right bg-black text-white">Cantidad Validada</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 text-xs">
+                    <tbody class="divide-y divide-gray-200 text-xs text-neutral-800">
                         {% for item in partidas %}
-                        <tr class="hover:bg-[#EDEDE2] transition-colors">
-                            <td class="p-4 text-center font-bold text-gray-400 border-r border-gray-100">{{ forloop.counter }}</td>
-                            <td class="p-4 font-bold text-[#0E2F2A] border-r border-gray-100">{{ item.articulo.clave|default:"N/A" }}</td>
-                            <td class="p-4 text-gray-700 font-medium uppercase border-r border-gray-100">{{ item.articulo.descripcion|default:"N/A" }}</td>
-                            
-                            <td class="p-4 text-gray-600 font-medium uppercase border-r border-gray-100">
-                                {% if item.lote %}
-                                    <span class="font-bold text-[#0E2F2A]">{{ item.lote }}</span>
-                                    {% if item.caducidad %}
-                                        <br><span class="text-[10px] text-gray-400">VENCE: {{ item.caducidad|date:"d/m/Y" }}</span>
-                                    {% endif %}
-                                {% else %}
-                                    <span class="text-gray-400 italic">SIN LOTE</span>
-                                {% endif %}
+                        <tr class="hover:bg-[#EDEDE2] transition-colors font-bold uppercase">
+                            <td class="p-4 text-center font-bold text-gray-400 border-r border-gray-100 bg-gray-50/50">{{ forloop.counter }}</td>
+                            <td class="p-4 text-[#0E2F2A] font-black text-sm border-r border-gray-100">{{ item.articulo.clave }}</td>
+                            <td class="p-4 font-medium text-gray-600 border-r border-gray-100">{{ item.articulo.descripcion }}</td>
+                            <td class="p-4 text-gray-900 border-r border-gray-100">
+                                <span class="bg-gray-100 border border-gray-300 px-2 py-1 text-[11px] font-mono font-black text-gray-800">{{ item.localizacion.clave }}</span>
                             </td>
-                            
-                            <td class="p-4 font-black text-lg text-[#0E2F2A] text-right bg-gray-50">{{ item.cantidad|default:"0.00" }}</td>
+                            <td class="p-4 text-[#0E2F2A] font-black border-r border-gray-100">
+                                {{ item.lote }}
+                            </td>
+                            <td class="p-4 font-black text-base text-[#0E2F2A] text-right bg-gray-50/50">{{ item.cantidad_recibida|floatformat:2 }} PZA</td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="p-10 text-center text-gray-400 uppercase tracking-wider text-xs bg-gray-50 font-bold">
-                                No se encontraron partidas asociadas a este recibo.
+                            <td colspan="6" class="p-10 text-center text-gray-400 uppercase tracking-wider text-xs bg-gray-50 font-bold">
+                                No se encontraron registros detallados para este folio.
                             </td>
                         </tr>
                         {% endfor %}
@@ -99,10 +175,18 @@
             </div>
         </div>
 
-        <div class="flex justify-center mt-4">
-            <span class="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                Documento Congelado para Auditoría
+        <div class="bg-white border border-gray-300 p-5 rounded-none">
+            <h4 class="text-xs font-bold uppercase mb-2 text-gray-400 tracking-wider">Observaciones Generales de la Maniobra</h4>
+            <div class="bg-gray-50 p-4 border border-gray-200 font-mono text-xs text-gray-600 uppercase leading-relaxed min-h-[60px]">
+                {{ recibo.observaciones|default:"Sin observaciones registradas en rampa por el supervisor." }}
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-2">
+            <span>Usuario Auditor: {{ request.user.username }}</span>
+            <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                REGISTRO CONGELADO HISTÓRICO - PROHIBIDA SU MODIFICACIÓN
             </span>
         </div>
 

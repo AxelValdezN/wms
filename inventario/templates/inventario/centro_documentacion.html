@@ -42,7 +42,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        <th class="p-4 w-10 text-center border-r border-gray-200">#</th> <th class="p-4">Folio Recibo</th>
+                        <th class="p-4">Folio Recibo</th>
                         <th class="p-4">Fecha Maniobra</th>
                         <th class="p-4">Cliente</th>
                         <th class="p-4">RO / PO</th>
@@ -52,32 +52,27 @@
                 </thead>
                 <tbody class="text-xs font-bold uppercase text-[#0E2F2A] divide-y divide-gray-100">
                     {% for entrada in entradas %}
-                    <tr class="hover:bg-[#EDEDE2] transition-colors cursor-pointer fila-clicable" data-url="{% url 'inventario:detalle_recibo' entrada.id %}">
-                        
-                        <td class="p-4 text-center text-gray-400 border-r border-gray-100">
-                            <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </td>
-
-                        <td class="p-4 font-black text-sm text-[#0E2F2A]">{{ entrada.folio_entrada }}</td>
-                        <td class="p-4 text-gray-600 font-medium">{{ entrada.fecha_maniobra|date:"d/m/Y"|default:"--" }}</td>
-                        <td class="p-4 text-gray-800">{{ entrada.cliente }}</td>
-                        <td class="p-4 text-gray-500 font-medium">{{ entrada.ro_po|default:"--" }}</td>
-                        <td class="p-4 text-right font-black text-[#0E2F2A]">{{ entrada.total_piezas_final|floatformat:2 }}</td>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="p-4 font-black text-sm">{{ entrada.folio_entrada }}</td>
+                        <td class="p-4 text-gray-500">{{ entrada.fecha_maniobra|date:"d/m/Y"|default:"--" }}</td>
+                        <td class="p-4">{{ entrada.cliente }}</td>
+                        <td class="p-4 text-gray-500">{{ entrada.ro_po|default:"--" }}</td>
+                        <td class="p-4 text-right font-black">{{ entrada.total_piezas_final|floatformat:2 }}</td>
                         <td class="p-4 text-center">
-                            <a href="{% url 'inventario:imprimir_tally' entrada.id %}?reimpreso=true" target="_blank" class="btn-accion inline-block bg-white border border-[#0E2F2A] text-[#0E2F2A] px-3 py-1.5 font-bold text-[10px] tracking-wider uppercase hover:bg-[#0E2F2A] hover:text-white transition-colors">
-                                Reimprimir Tally
+                            <a href="{% url 'inventario:imprimir_tally' entrada.id %}?reimpreso=true" target="_blank" class="inline-block bg-gray-100 border border-gray-300 text-[#0E2F2A] px-3 py-1 font-bold text-[10px] tracking-wider uppercase hover:bg-[#B8D700] transition-colors">
+                                🖨️ Reimprimir Tally
                             </a>
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="7" class="p-10 text-center text-gray-400 tracking-wider text-xs bg-gray-50 font-bold">NO SE ENCONTRARON REGISTROS DE RECIBO.</td></tr>
+                    <tr><td colspan="6" class="p-8 text-center text-gray-400">No se encontraron registros de recibo.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
         <div id="panel-outbound" class="hidden">
-             <table class="w-full text-left border-collapse">
+            <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                         <th class="p-4">Folio Surtido</th>
@@ -98,7 +93,7 @@
                         <td class="p-4 text-right font-black">{{ salida.meta_total|floatformat:2 }}</td>
                         <td class="p-4 text-center">
                             <a href="{% url 'inventario:picking_list' salida.folio_salida %}?reimpreso=true" target="_blank" class="inline-block bg-gray-100 border border-gray-300 text-[#0E2F2A] px-3 py-1 font-bold text-[10px] tracking-wider uppercase hover:bg-[#B8D700] transition-colors">
-                                Reimprimir Picking
+                                🖨️ Reimprimir Picking
                             </a>
                         </td>
                     </tr>
@@ -114,47 +109,28 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    
-    // --- 1. LÓGICA DE LAS PESTAÑAS (Mantenida intacta) ---
     const btnInbound = document.getElementById('tab-inbound');
     const btnOutbound = document.getElementById('tab-outbound');
     const panelInbound = document.getElementById('panel-inbound');
     const panelOutbound = document.getElementById('panel-outbound');
 
     btnInbound.addEventListener('click', function() {
+        // Estilos de botones
         btnInbound.className = "px-6 py-3 text-xs font-black uppercase tracking-widest border-b-4 border-[#0E2F2A] text-[#0E2F2A] focus:outline-none transition-colors";
         btnOutbound.className = "px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-4 border-transparent text-gray-400 hover:text-[#0E2F2A] focus:outline-none transition-colors";
+        // Visibilidad paneles
         panelInbound.classList.remove('hidden'); panelInbound.classList.add('block');
         panelOutbound.classList.remove('block'); panelOutbound.classList.add('hidden');
     });
 
     btnOutbound.addEventListener('click', function() {
+        // Estilos de botones
         btnOutbound.className = "px-6 py-3 text-xs font-black uppercase tracking-widest border-b-4 border-[#0E2F2A] text-[#0E2F2A] focus:outline-none transition-colors";
         btnInbound.className = "px-6 py-3 text-xs font-bold uppercase tracking-widest border-b-4 border-transparent text-gray-400 hover:text-[#0E2F2A] focus:outline-none transition-colors";
+        // Visibilidad paneles
         panelOutbound.classList.remove('hidden'); panelOutbound.classList.add('block');
         panelInbound.classList.remove('block'); panelInbound.classList.add('hidden');
     });
-
-    // --- 2. LÓGICA DE LAS FILAS INTERACTIVAS (NUEVO) ---
-    const filasClicables = document.querySelectorAll('.fila-clicable');
-    
-    filasClicables.forEach(fila => {
-        fila.addEventListener('click', function(e) {
-            
-            // Verificamos si el clic provino de un botón específico dentro de la fila (Ej. Reimprimir Tally)
-            // Si es así, no hacemos nada, dejamos que el botón haga su trabajo normal.
-            if (e.target.closest('.btn-accion')) {
-                return;
-            }
-            
-            // Si el clic fue en cualquier otra parte de la fila, extraemos la URL y navegamos.
-            const url = this.getAttribute('data-url');
-            if (url) {
-                window.location.href = url;
-            }
-        });
-    });
-
 });
 </script>
 {% endblock %}
