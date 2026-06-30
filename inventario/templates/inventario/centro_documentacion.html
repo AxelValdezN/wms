@@ -76,11 +76,11 @@
             </table>
         </div>
 
-        <div id="panel-outbound" class="hidden">
-             <table class="w-full text-left border-collapse">
+       <div id="panel-outbound" class="hidden">
+            <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        <th class="p-4">Folio Surtido</th>
+                        <th class="p-4 w-10 text-center border-r border-gray-200">#</th> <th class="p-4">Folio Surtido</th>
                         <th class="p-4">Fecha Creación</th>
                         <th class="p-4">Destino</th>
                         <th class="p-4">Surtidor Asignado</th>
@@ -90,20 +90,25 @@
                 </thead>
                 <tbody class="text-xs font-bold uppercase text-[#0E2F2A] divide-y divide-gray-100">
                     {% for salida in salidas %}
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-4 font-black text-sm">{{ salida.folio_salida }}</td>
-                        <td class="p-4 text-gray-500">{{ salida.fecha_creacion|date:"d/m/Y H:i" }}</td>
-                        <td class="p-4">{{ salida.destino }}</td>
-                        <td class="p-4 text-gray-500">{{ salida.asignado_a }}</td>
-                        <td class="p-4 text-right font-black">{{ salida.meta_total|floatformat:2 }}</td>
+                    <tr class="hover:bg-[#EDEDE2] transition-colors cursor-pointer fila-clicable" data-url="{% url 'inventario:detalle_surtido' salida.id %}">
+                        
+                        <td class="p-4 text-center text-gray-400 border-r border-gray-100">
+                            <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </td>
+
+                        <td class="p-4 font-black text-sm text-[#0E2F2A]">{{ salida.folio_salida }}</td>
+                        <td class="p-4 text-gray-600 font-medium">{{ salida.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                        <td class="p-4 text-gray-800">{{ salida.destino }}</td>
+                        <td class="p-4 text-gray-500 font-medium">{{ salida.asignado_a }}</td>
+                        <td class="p-4 text-right font-black text-[#0E2F2A]">{{ salida.meta_total|floatformat:2 }}</td>
                         <td class="p-4 text-center">
-                            <a href="{% url 'inventario:picking_list' salida.folio_salida %}?reimpreso=true" target="_blank" class="inline-block bg-gray-100 border border-gray-300 text-[#0E2F2A] px-3 py-1 font-bold text-[10px] tracking-wider uppercase hover:bg-[#B8D700] transition-colors">
+                            <a href="{% url 'inventario:picking_list' salida.folio_salida %}?reimpreso=true" target="_blank" class="btn-accion inline-block bg-white border border-[#0E2F2A] text-[#0E2F2A] px-3 py-1.5 font-bold text-[10px] tracking-wider uppercase hover:bg-[#0E2F2A] hover:text-white transition-colors">
                                 Reimprimir Picking
                             </a>
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="6" class="p-8 text-center text-gray-400">No se encontraron registros de salidas completadas.</td></tr>
+                    <tr><td colspan="7" class="p-10 text-center text-gray-400 tracking-wider text-xs bg-gray-50 font-bold">NO SE ENCONTRARON REGISTROS DE SALIDAS COMPLETADAS.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

@@ -795,20 +795,29 @@ def registrar_embarque(request):
 
 @login_required
 def detalle_recibo(request, entrada_id):
-    # 1. NIVEL MAESTRO (La Cabecera)
     # Usamos get_object_or_404: Si alguien escribe una URL con un ID que no existe, 
-    # Django lanza un error 404 limpio en lugar de colapsar el servidor (Error 500).
+    # Django lanza un error 404 limpio en lugar de colapsar el servidor
     recibo = get_object_or_404(Entrada, id=entrada_id)
-    
-    # 2. NIVEL DETALLE (La Radiografía)
+
     # Buscamos todos los registros en DetalleEntrada que pertenezcan a este recibo específico.
-    # (Nota: Verifica que tu ForeignKey en DetalleEntrada se llame 'entrada', si se llama distinto, ajústalo aquí).
     partidas = DetalleEntrada.objects.filter(entrada=recibo)
-    
-    # 3. EMPAQUETADO Y ENVÍO
+
     context = {
         'recibo': recibo,
         'partidas': partidas,
     }
     
     return render(request, 'inventario/detalle_recibo.html', context)
+@login_required
+def detalle_surtido(request, salida_id):
+    salida = get_object_or_404(OrdenSalida, id=salida_id)
+
+    # NOTA: Verifica en tu models.py si la relación inversa en DetalleSalida se llama 'orden_salida' o 'salida'.
+    partidas = DetalleSalida.objects.filter(orden_salida=salida)
+    
+    context = {
+        'salida': salida,
+        'partidas': partidas,
+    }
+    
+    return render(request, 'inventario/detalle_surtido.html', context)

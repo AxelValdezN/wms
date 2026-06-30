@@ -20,4 +20,5 @@ urlpatterns = [
     path('auditoria/documentos/', views.centro_documentacion, name='centro_documentacion'),
     path('salidas/despacho/', views.registrar_embarque, name='registrar_embarque'),
     path('auditoria/recibos/detalle/<int:entrada_id>/', views.detalle_recibo, name='detalle_recibo'),
+    path('auditoria/surtidos/detalle/<int:salida_id>/', views.detalle_surtido, name='detalle_surtido'),
 ]
