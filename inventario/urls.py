@@ -19,4 +19,5 @@ urlpatterns = [
     path('entradas/tally/<int:entrada_id>/imprimir/', views.imprimir_tally, name='imprimir_tally'),
     path('auditoria/documentos/', views.centro_documentacion, name='centro_documentacion'),
     path('salidas/despacho/', views.registrar_embarque, name='registrar_embarque'),
+    path('auditoria/recibos/detalle/<int:entrada_id>/', views.detalle_recibo, name='detalle_recibo'),
 ]

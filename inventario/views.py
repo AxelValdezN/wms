@@ -766,8 +766,7 @@ def registrar_embarque(request):
                     estatus='CARGANDO'
                 )
                 
-                # FASE 3: El Abordaje (Asignación Relacional en base de datos)
-                # Filtramos las órdenes seleccionadas que siguen huérfanas en rampa
+                # Filtramos las ordenes seleccionadas que siguen huerfanas en rampa
                 ordenes_a_embarcar = OrdenSalida.objects.filter(id__in=ordenes_ids, embarque__isnull=True)
                 
                 for orden in ordenes_a_embarcar:
@@ -775,22 +774,41 @@ def registrar_embarque(request):
                     orden.estatus = 'DESPACHADO'  # Cerramos el ciclo comercial de la orden
                     orden.save()
                 
-                # Una vez que los registros internos se amarraron, sellamos el estatus del camión
+                # Una vez que los registros internos se amarraron, sellamos el estatus del camion
                 nuevo_embarque.estatus = 'DESPACHADO'
                 nuevo_embarque.save()
                 
-            # Éxito absoluto en la transacción
             messages.success(request, f"DESPACHO EXITOSO: UNIDAD {folio_embarque} EN RUTA. CORTINA LIBERADA.")
             return redirect('inventario:registrar_embarque')
             
         except Exception as e:
-            # Si algo falla aquí adentro, la transacción atómica borra el camión y regresa las órdenes a rampa
+            # Si algo falla aqui adentro, la transacción atomica borra el camion y regresa las ordenes a rampa
             messages.error(request, f"ERROR CRÍTICO DE CONCURRENCIA EN POSTGRESQL: {str(e)}")
             
-    # OPERACIÓN GET: Alimentar la tabla del panel derecho con órdenes listas en rampa
-    # Buscamos órdenes que estén completadas internamente pero que no pertenezcan a ningún tráiler todavía
+    # OPERACIÓN GET: Alimentar la tabla del panel derecho con ordenes listas en rampa
+    # Buscamos ordenes que esten completadas internamente pero que no pertenezcan a ningún trailer todavia
     ordenes_disponibles = OrdenSalida.objects.filter(estatus='COMPLETADA', embarque__isnull=True)
     
     return render(request, 'inventario/registrar_embarque.html', {
         'ordenes_disponibles': ordenes_disponibles
     })
+
+@login_required
+def detalle_recibo(request, entrada_id):
+    # 1. NIVEL MAESTRO (La Cabecera)
+    # Usamos get_object_or_404: Si alguien escribe una URL con un ID que no existe, 
+    # Django lanza un error 404 limpio en lugar de colapsar el servidor (Error 500).
+    recibo = get_object_or_404(Entrada, id=entrada_id)
+    
+    # 2. NIVEL DETALLE (La Radiografía)
+    # Buscamos todos los registros en DetalleEntrada que pertenezcan a este recibo específico.
+    # (Nota: Verifica que tu ForeignKey en DetalleEntrada se llame 'entrada', si se llama distinto, ajústalo aquí).
+    partidas = DetalleEntrada.objects.filter(entrada=recibo)
+    
+    # 3. EMPAQUETADO Y ENVÍO
+    context = {
+        'recibo': recibo,
+        'partidas': partidas,
+    }
+    
+    return render(request, 'inventario/detalle_recibo.html', context)
