@@ -813,7 +813,7 @@ def detalle_surtido(request, salida_id):
     salida = get_object_or_404(OrdenSalida, id=salida_id)
 
     # NOTA: Verifica en tu models.py si la relación inversa en DetalleSalida se llama 'orden_salida' o 'salida'.
-    partidas = DetalleSalida.objects.filter(OrdenSalida=salida)
+    partidas = DetalleSalida.objects.filter(orden=salida)
     
     context = {
         'salida': salida,
