@@ -15,8 +15,20 @@ class Articulo (models.Model):
     ]
     clasificacion = models.CharField(max_length=1, choices=CLASIFICACION_CHOICES)
     estatus = models.BooleanField(default=True)
+
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    usuario_alta = models.ForeignKey(
+        User, 
+        on_delete=models.RESTRICT,
+        null=True,
+        blank=True,
+        related_name='articulos_creados'
+    )
+    
     def __str__(self):
-        return f"{self.clave} - {self.descripcion}"
+        estado_visual = "[ACTIVO]" if self.estatus else "[INACTIVO]"
+        return f"{self.clave} - {self.descripcion} {estado_visual}"
+
 #genera automaticamente el campo id_localizacion como PK
 class Localizacion(models.Model):
     TIPO_CHOICES = [

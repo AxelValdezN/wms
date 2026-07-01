@@ -21,4 +21,8 @@ urlpatterns = [
     path('salidas/despacho/', views.registrar_embarque, name='registrar_embarque'),
     path('auditoria/recibos/detalle/<int:entrada_id>/', views.detalle_recibo, name='detalle_recibo'),
     path('auditoria/surtidos/detalle/<int:salida_id>/', views.detalle_surtido, name='detalle_surtido'),
+    path('catalogo/', views.catalogo_articulos, name='catalogo_articulos'),
+    path('catalogo/eliminar/<int:articulo_id>/', views.eliminar_sku_hibrido, name='eliminar_sku'),
+    path('catalogo/detalle/<int:articulo_id>/', views.sku, name='detalle_sku'),
+    path('catalogo/reactivar/<int:articulo_id>/'), views.reactivar_sku, name='reactivar_sku)',
 ]

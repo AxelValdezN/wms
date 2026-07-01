@@ -24,7 +24,6 @@
 
                 <form action="{% url 'inventario:catalogo_articulos' %}" method="POST" class="p-6 space-y-5">
                     {% csrf_token %}
-                    
                     <div>
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Clave / SKU</label>
                         <input type="text" name="clave" required placeholder="EJ. ART-001"
@@ -51,12 +50,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Clasificación ABC (Rotación)</label>
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Clasificación ABC</label>
                         <select name="clasificacion" required class="w-full rounded-none border border-gray-300 p-2.5 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors cursor-pointer">
                             <option value="" disabled selected>-- SELECCIONAR --</option>
-                            {% for valor, etiqueta in clasificaciones %}
-                            <option value="{{ valor }}">{{ etiqueta }}</option>
-                            {% endfor %}
+                            <option value="A">Alta Rotación (A)</option>
+                            <option value="B">Media Rotación (B)</option>
+                            <option value="C">Baja Rotación (C)</option>
                         </select>
                     </div>
 
@@ -71,29 +70,52 @@
 
         <div class="lg:col-span-8">
             
-            <div class="bg-white border border-gray-200 shadow-sm rounded-none flex flex-col h-full">
+            <div class="bg-white border border-gray-200 shadow-sm rounded-none flex flex-col h-full overflow-hidden">
                 
-                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                    <h3 class="text-sm font-bold text-[#0E2F2A] uppercase tracking-wider flex items-center gap-2">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-[#0E2F2A]">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#B8D700]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
                         Directorio Activo
                     </h3>
-                    <span class="bg-[#EDEDE2] text-[#0E2F2A] text-xs font-bold px-3 py-1 uppercase">{{ articulos.count }} SKUs Registrados</span>
                 </div>
 
+                <form method="GET" action="{% url 'inventario:catalogo_articulos' %}" class="bg-gray-50 border-b border-gray-200 p-4 flex gap-2">
+                    <input type="text" name="q" value="{{ query }}" placeholder="BUSCAR POR CLAVE, DESCRIPCIÓN O FAMILIA..." 
+                           class="flex-grow rounded-none border border-gray-300 p-2 text-xs font-bold uppercase text-[#0E2F2A] focus:outline-none focus:border-[#0E2F2A]">
+                    <button type="submit" class="bg-gray-800 text-white px-5 py-2 font-bold text-xs uppercase tracking-wider hover:bg-black transition-colors">
+                        Filtrar
+                    </button>
+                    {% if query %}
+                    <a href="{% url 'inventario:catalogo_articulos' %}" class="bg-white border border-gray-300 text-gray-500 px-4 py-2 font-bold text-xs uppercase flex items-center hover:bg-gray-100 transition-colors">
+                        ✖ Limpiar
+                    </a>
+                    {% endif %}
+                </form>
+
                 <div class="overflow-x-auto flex-grow">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-white">
+                    <table class="min-w-full text-left border-collapse">
+                        <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Clave</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Descripción</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">Familia</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-widest">Rotación</th>
+                                <th scope="col" class="px-6 py-3 text-xs font-bold text-gray-400 uppercase tracking-widest w-12 text-center">Estatus</th>
+                                <th scope="col" class="px-6 py-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Clave</th>
+                                <th scope="col" class="px-6 py-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Descripción</th>
+                                <th scope="col" class="px-6 py-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Familia</th>
+                                <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-gray-400 uppercase tracking-widest">Rotación</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
-                            {% for articulo in articulos %}
-                            <tr class="hover:bg-gray-50 transition-colors">
+                            {% for articulo in page_obj %}
+                            
+                            <tr class="hover:bg-[#EDEDE2] transition-colors cursor-pointer fila-clicable" data-url="{% url 'inventario:detalle_sku' articulo.id %}">
+                                
+                                <td class="px-6 py-4 text-center">
+                                    {% if articulo.estatus %}
+                                        <span class="inline-block w-3 h-3 rounded-full bg-green-500 shadow-sm" title="ACTIVO"></span>
+                                    {% else %}
+                                        <span class="inline-block w-3 h-3 rounded-full bg-red-500 shadow-sm" title="INACTIVO (Baja Lógica)"></span>
+                                    {% endif %}
+                                </td>
+
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-black text-[#0E2F2A]">{{ articulo.clave }}</td>
                                 <td class="px-6 py-4">
                                     <div class="text-sm font-bold text-gray-800 uppercase">{{ articulo.descripcion }}</div>
@@ -102,14 +124,14 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-bold uppercase">{{ articulo.familia }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center"> 
                                     <span class="px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-[#0E2F2A] bg-[#EDEDE2] border border-gray-300">
-                                       Clase {{ articulo.clasificacion }}
+                                        Clase {{ articulo.clasificacion }}
                                     </span>
                                 </td>
                             </tr> 
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="px-6 py-16 text-center">
-                                    <span class="block text-sm font-bold text-gray-400 uppercase tracking-widest">Base de datos vacía. Registre su primer artículo.</span>
+                                <td colspan="5" class="px-6 py-16 text-center">
+                                    <span class="block text-sm font-bold text-gray-400 uppercase tracking-widest">No se encontraron artículos con ese criterio.</span>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -117,9 +139,36 @@
                     </table>
                 </div>
 
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                    <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                    <div class="flex gap-2">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="bg-white border border-gray-300 px-4 py-1.5 text-[#0E2F2A] hover:bg-gray-100 transition-colors">ANTERIOR</a>
+                        {% endif %}
+                        
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="bg-[#0E2F2A] text-white border border-[#0E2F2A] px-4 py-1.5 hover:bg-black transition-colors">SIGUIENTE</a>
+                        {% endif %}
+                    </div>
+                </div>
+
             </div>
         </div>
 
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filasClicables = document.querySelectorAll('.fila-clicable');
+    filasClicables.forEach(fila => {
+        fila.addEventListener('click', function(e) {
+            const url = this.getAttribute('data-url');
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

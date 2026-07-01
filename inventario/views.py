@@ -5,13 +5,14 @@ from decimal import Decimal
 from .models import DetalleEntrada, Entrada, Existencia, Articulo, Localizacion, Movimiento, OrdenSalida, DetalleSalida, Lote, Embarque
 from django.db import transaction
 from django.utils.dateparse import parse_date
-from django.db.models import Q, F, Sum, Count
+from django.db.models import Q, F, Sum, Count, ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404    
 import time, json
 from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
 from django.urls import reverse
+from django.core.paginator import Paginator
 
 @login_required
 def dashboard_inventario(request):
@@ -821,3 +822,91 @@ def detalle_surtido(request, salida_id):
     }
     
     return render(request, 'inventario/detalle_surtido.html', context)
+
+@login_required
+def catalogo_articulos(request):
+    """
+    Motor de búsqueda y paginación para el Master Data Management de SKUs.
+    """
+    query = request.GET.get('q', '')
+    
+    # Extraemos todos los artículos ordenados por el más reciente
+    articulos_list = Articulo.objects.all().order_by('-id')
+
+    # Filtro asíncrono multiparamétrico
+    if query:
+        articulos_list = articulos_list.filter(
+            Q(clave__icontains=query) |
+            Q(descripcion__icontains=query) |
+            Q(familia__icontains=query)
+        )
+
+    # Paginación estricta: 50 SKUs por bloque para no asfixiar la memoria del navegador
+    paginator = Paginator(articulos_list, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'query': query,
+    }
+    
+    return render(request, 'inventario/catalogo_articulos.html', context)
+
+
+@login_required
+def eliminar_sku_hibrido(request, articulo_id):
+    """
+    Algoritmo de Destrucción Híbrida:
+    Intenta un Hard Delete. Si PostgreSQL detecta integridad referencial (historial),
+    el motor atrapa el ProtectedError y ejecuta un Soft Delete (Baja Lógica).
+    """
+    if request.method == 'POST':
+        articulo = get_object_or_404(Articulo, id=articulo_id)
+        clave_temporal = articulo.clave
+        
+        try:
+            # Borramos desde la raiz con un HARDDELETE si no hay historial con el SKU
+            articulo.delete()
+            messages.success(request, f"DESTRUCCIÓN FÍSICA: El SKU {clave_temporal} fue eliminado de raíz al no contar con historial operativo.")
+            
+        except ProtectedError:
+            # Soft DELETE: Bloqueamos el "delete" al detectar registros y lo cambiamos a un estado inactivo para proteger la seccion completa 
+            articulo.estatus = False
+            articulo.save()
+            messages.warning(request, f"BAJA LÓGICA: El SKU {clave_temporal} posee historial en andenes. Se cambió su estatus a INACTIVO para proteger la auditoría.")
+
+    return redirect('inventario:catalogo_articulos')
+
+@login_required
+def detalle_sku(request, articulo_id):
+    """
+    Radiografia del articulo y mapa de existencias
+    """
+    articulo = get_object_or_404(Articulo, id=articulo_id)
+    # recuperamos todas las existencias realcionadas e intentamos un MAPA DE CALOR 
+    try:
+        from.models import Existencia
+        stock_activo = Existencia.objects.filter(articulos=articulo, cantidad__gt=0).order_by('localizacion__clave')
+        total_piezas = sum(item.cantidad for item in stock_activo)
+    except Exception:
+        stock_activo = []
+        total_piezas = 0
+    context = {
+        'articulo': articulo,
+        'stock_activo': stock_activo,
+        'total_piezas': total_piezas,
+    }
+    return render(request, 'inventario/detalle_sku.html', context)
+
+@login_required
+def reactivas_sku(request, articulo_id):
+    """
+    Revierte una baja logica (SOFT DELETE)
+    """
+    if request.method == 'POST':
+        articulo = get_object_or_404(Articulo, id=articulo_id)
+        articulo.estatus = True
+        articulo.save()
+        messages.success(request, f"REACTIVACION: EL SKU {articulo.clave} vuelve a estar activo en el catalogo.")
+    return redirect('inventario:detalle_sku', articulo_id=articulo.id)
