@@ -6,156 +6,260 @@
     <title>Recibo {{ entrada.folio_entrada }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap');
-        body { font-family: 'Space Grotesk', sans-serif; background-color: #e5e7eb; }
-        .hoja-a4 {
-            width: 21cm;
-            min-height: 29.7cm;
-            margin: 2cm auto;
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        
+        body { 
+            font-family: 'Space Grotesk', sans-serif; 
+            background-color: #f3f4f6; 
+            color: #111827;
+        }
+
+        /* Configuración de Hoja para Pantalla */
+        .document-container {
+            max-width: 210mm;
+            margin: 2rem auto;
             background: white;
-            padding: 1.5cm;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 12mm 15mm;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
+
+        /* Reglas estrictas para el motor de impresión */
         @media print {
+            @page {
+                size: A4;
+                margin: 12mm 15mm;
+            }
             body { background-color: white; margin: 0; padding: 0; }
-            .hoja-a4 { margin: 0; padding: 0; width: 100%; box-shadow: none; }
+            .document-container { box-shadow: none; margin: 0; padding: 0; max-width: 100%; width: 100%; }
             .no-print { display: none !important; }
+            
+            /* Repetir encabezados de tabla en cada página */
+            thead { display: table-header-group; }
+            tfoot { display: table-footer-group; }
+            
+            /* Evitar que una fila se corte a la mitad entre dos páginas */
+            tr, .avoid-break { page-break-inside: avoid; }
         }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #111; padding: 4px 6px; font-size: 10px; }
-        th { background-color: #f3f4f6; text-align: center; text-transform: uppercase; }
+
+        /* Tipografía de Tabla Estricta */
+        table { width: 100%; border-collapse: collapse; }
+        th { 
+            font-size: 9px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+            color: #6b7280; 
+            border-bottom: 2px solid #0E2F2A; 
+            padding: 8px 4px; 
+            text-align: left;
+        }
+        td { 
+            font-size: 11px; 
+            padding: 8px 4px; 
+            border-bottom: 1px solid #e5e7eb; 
+            vertical-align: top;
+        }
     </style>
 </head>
-<body>
-    {% if request.GET.reimpreso == "true" %}
-<div class="no-print bg-red-600 text-white text-center py-2 text-xs font-black uppercase tracking-widest sticky top-0 z-50">
-    ⚠️ ATENCIÓN: ESTA ES UNA COPIA REIMPRESA. CUALQUIER ALTERACIÓN SERÁ AUDITADA POR EL SISTEMA.
-</div>
-{% endif %}
+<body class="antialiased">
 
-<div class="hoja-a4 relative overflow-hidden">
-    
     {% if request.GET.reimpreso == "true" %}
-    <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-[0.06] transform rotate-[-35deg] z-0">
-        <h1 class="text-7xl font-black border-8 border-red-800 p-4 tracking-widest text-red-800 uppercase">REIMPRESIÓN AUDITADA</h1>
+    <div class="no-print bg-red-600 text-white text-center py-2 text-xs font-bold uppercase tracking-widest sticky top-0 z-50">
+        ⚠️ Atención: Documento reimpreso. La acción ha sido auditada.
     </div>
     {% endif %}
 
-    <div class="no-print fixed top-6 right-6 flex flex-col gap-3">
-        <button onclick="window.print()" class="bg-[#0E2F2A] text-[#B8D700] px-6 py-3 font-bold uppercase tracking-widest text-sm shadow-xl border border-transparent hover:border-[#0E2F2A] transition-all">
-            🖨️ Imprimir Formato
+    <div class="no-print fixed top-6 right-6 flex flex-col gap-3 z-40">
+        <button onclick="window.print()" class="bg-[#0E2F2A] text-white px-6 py-3 font-bold uppercase tracking-widest text-xs shadow-lg transition-colors hover:bg-black">
+            Imprimir Documento
         </button>
-        <a href="{% url 'inventario:dashboard' %}" class="bg-white text-[#0E2F2A] px-6 py-3 font-bold uppercase tracking-widest text-sm text-center shadow-xl border border-gray-300 transition-all">
-            Ir al Dashboard
+        <a href="{% url 'inventario:dashboard' %}" class="bg-white text-[#0E2F2A] px-6 py-3 font-bold uppercase tracking-widest text-xs text-center shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            Volver al Dashboard
         </a>
     </div>
 
-    <div class="hoja-a4">
+    <div class="document-container relative">
         
-        <div class="flex justify-between items-start border-b-2 border-black pb-4 mb-4">
+        {% if request.GET.reimpreso == "true" %}
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.04] z-0">
+            <h1 class="text-[8rem] font-black uppercase text-red-900 transform -rotate-45 whitespace-nowrap">Copia Reimpresa</h1>
+        </div>
+        {% endif %}
+
+        <header class="flex justify-between items-end border-b-2 border-[#0E2F2A] pb-4 mb-6 relative z-10">
             <div>
-                <h1 class="text-3xl font-black tracking-tighter uppercase text-black">PATH</h1>
-                <p class="text-[9px] font-bold tracking-widest uppercase text-gray-500">Logistics & Copacker</p>
+                <h1 class="text-3xl font-black text-[#0E2F2A] tracking-tighter uppercase leading-none">PATH</h1>
+                <p class="text-[9px] font-bold tracking-widest uppercase text-gray-500 mt-1">Logistics & Copacker</p>
+                <p class="text-[8px] font-medium text-gray-400 mt-2 uppercase">RG-VM-OP-001 | V00</p>
             </div>
-            <div class="text-center">
-                <h2 class="text-base font-black tracking-widest uppercase">Control de Recibo de Producto</h2>
-                <p class="text-[10px] font-bold text-gray-500 uppercase mt-1">RG-VM-OP-001, V00 | FE: OCT 2024 - RE: OCT 2024</p>
+            
+            <div class="text-right">
+                <h2 class="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-1">Recibo de Mercancía</h2>
+                <div class="text-3xl font-black text-black leading-none tracking-tight">{{ entrada.folio_entrada }}</div>
             </div>
-            <div class="border-2 border-black p-2 text-center w-32">
-                <p class="text-[10px] font-bold uppercase tracking-widest bg-gray-200">Folio</p>
-                <p class="text-xl font-black">{{ entrada.folio_entrada }}</p>
+        </header>
+
+        <div class="grid grid-cols-3 gap-6 mb-8 relative z-10">
+            
+            <div class="space-y-3">
+                <h3 class="text-[9px] font-bold text-gray-800 uppercase tracking-widest border-b border-gray-200 pb-1">1. Origen</h3>
+                <div>
+                    <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Cliente</span>
+                    <span class="text-[11px] font-bold uppercase text-black">{{ entrada.cliente }}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Cortina Asignada</span>
+                        <span class="text-[11px] font-bold uppercase text-black">{{ entrada.cortina|default:"--" }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Tipo Operación</span>
+                        <span class="text-[11px] font-bold uppercase text-black">{{ entrada.get_tipo_transporte_display }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h3 class="text-[9px] font-bold text-gray-800 uppercase tracking-widest border-b border-gray-200 pb-1">2. Transporte</h3>
+                <div>
+                    <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Línea Transportista</span>
+                    <span class="text-[11px] font-bold uppercase text-black">{{ entrada.transporte_linea }}</span>
+                </div>
+                <div>
+                    <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Operador (Chofer)</span>
+                    <span class="text-[11px] font-bold uppercase text-black">{{ entrada.nombre_chofer }}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Placas Tracto</span>
+                        <span class="text-[11px] font-bold uppercase text-black">{{ entrada.placas_tractor }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Placas Caja</span>
+                        <span class="text-[11px] font-bold uppercase text-black">{{ entrada.placas_caja }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h3 class="text-[9px] font-bold text-gray-800 uppercase tracking-widest border-b border-gray-200 pb-1">3. Control Operativo</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Sellos de Seguridad</span>
+                        <span class="text-[11px] font-bold uppercase text-black">{{ entrada.sellos_seguridad }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">No. Económico</span>
+                        <span class="text-[11px] font-bold uppercase text-black">{{ entrada.numero_economico|default:"--" }}</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Fecha Maniobra</span>
+                        <span class="text-[11px] font-bold uppercase text-black">{{ entrada.fecha_maniobra|date:"d M Y" }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Ventana (Inicio - Fin)</span>
+                        <span class="text-[11px] font-bold uppercase text-black">{{ entrada.hora_llegada|time:"H:i" }} - {{ entrada.hora_termino|time:"H:i" }}</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Método de Descarga</span>
+                    <span class="text-[11px] font-bold uppercase text-black">{{ entrada.get_tipo_descarga_display }}</span>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-4 mb-4 text-[10px]">
-            <div class="border border-black p-2">
-                <p><span class="font-bold">CLIENTE:</span> <span class="uppercase">{{ entrada.cliente }}</span></p>
-                <p class="mt-2"><span class="font-bold">CORTINA:</span> <span class="uppercase">{{ entrada.cortina|default:"--" }}</span></p>
-            </div>
-            <div class="border border-black p-2">
-                <p><span class="font-bold">TRANSPORTISTA:</span> <span class="uppercase">{{ entrada.transporte_linea }}</span></p>
-                <p><span class="font-bold">CHOFER:</span> <span class="uppercase">{{ entrada.nombre_chofer }}</span></p>
-                <p><span class="font-bold">PLACAS TRACTO:</span> <span class="uppercase">{{ entrada.placas_tractor }}</span></p>
-                <p><span class="font-bold">PLACAS CAJA:</span> <span class="uppercase">{{ entrada.placas_caja }}</span></p>
-            </div>
-            <div class="border border-black p-2">
-                <p><span class="font-bold">SELLOS:</span> <span class="uppercase">{{ entrada.sellos_seguridad }}</span></p>
-                <p><span class="font-bold">ECONÓMICO:</span> <span class="uppercase">{{ entrada.numero_economico|default:"--" }}</span></p>
-                <p class="mt-2"><span class="font-bold">FECHA MANIOBRA:</span> <span class="uppercase">{{ entrada.fecha_maniobra|date:"d M Y" }}</span></p>
-                <p><span class="font-bold">HORARIO:</span> <span class="uppercase">{{ entrada.hora_llegada|time:"H:i" }} - {{ entrada.hora_termino|time:"H:i" }}</span></p>
-            </div>
-        </div>
-
-        <div class="flex justify-between border-y-2 border-black py-2 mb-4 text-[10px] font-bold">
-            <div class="flex gap-4">
-                <span class="bg-black text-white px-2 py-0.5 uppercase">TIPO</span>
-                <span class="uppercase">☑ {{ entrada.get_tipo_transporte_display }}</span>
-            </div>
-            <div class="flex gap-4">
-                <span class="bg-black text-white px-2 py-0.5 uppercase">DESCARGA</span>
-                <span class="uppercase">☑ {{ entrada.get_tipo_descarga_display }}</span>
-            </div>
-        </div>
-
-        <div class="min-h-[400px]">
+        <div class="relative z-10 w-full mb-6">
             <table>
                 <thead>
                     <tr>
-                        <th class="w-1/4">SKU</th>
-                        <th class="w-1/6">LOTE</th>
-                        <th class="w-1/6">CADUCIDAD</th>
-                        <th class="w-1/6">UBICACIÓN</th>
-                        <th class="w-1/6">CANTIDAD</th>
-                        <th class="w-1/6">ESTADO</th>
+                        <th style="width: 20%;">SKU</th>
+                        <th style="width: 20%;">Lote</th>
+                        <th style="width: 15%;">Caducidad</th>
+                        <th style="width: 15%;">Ubicación</th>
+                        <th style="width: 15%; text-align: right;">Cantidad</th>
+                        <th style="width: 15%; text-align: right;">Estado</th>
                     </tr>
                 </thead>
-                <tbody class="text-center font-bold uppercase text-[11px]">
+                <tbody class="uppercase font-medium">
                     {% for detalle in detalles %}
                     <tr>
-                        <td class="text-left font-black">{{ detalle.articulo.clave }}</td>
-                        <td>{{ detalle.lote.clave }}</td>
-                        <td>{{ detalle.lote.fecha_caducidad|date:"d/m/y"|default:"--" }}</td>
-                        <td class="bg-gray-100 font-black">{{ detalle.localizacion.clave }}</td>
-                        <td class="font-black">{{ detalle.cantidad_recibida|floatformat:2 }}</td>
-                        <td class="text-[9px]">DISPONIBLE</td>
+                        <td class="font-bold text-black">{{ detalle.articulo.clave }}</td>
+                        <td class="text-gray-700">{{ detalle.lote.clave }}</td>
+                        <td class="text-gray-700">{{ detalle.lote.fecha_caducidad|date:"d/m/y"|default:"--" }}</td>
+                        <td class="font-bold text-gray-800">{{ detalle.localizacion.clave }}</td>
+                        <td class="font-bold text-black" style="text-align: right;">{{ detalle.cantidad_recibida|floatformat:2 }}</td>
+                        <td class="text-[9px] text-gray-500 font-bold" style="text-align: right;">DISPONIBLE</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <div class="border-y-2 border-black py-2 my-4 flex justify-between items-center bg-gray-50">
-            <div class="text-[10px] font-bold px-2 flex gap-6">
-                <p><span class="bg-black text-white px-2 py-0.5">PEDIMENTO:</span> {{ entrada.pedimento|default:"--" }}</p>
-                <p><span class="bg-black text-white px-2 py-0.5">ORDER:</span> {{ entrada.orden_referencia|default:"--" }}</p>
-                <p><span class="bg-black text-white px-2 py-0.5">INVOICE:</span> {{ entrada.documento_referencia|default:"--" }}</p>
-                <p><span class="bg-black text-white px-2 py-0.5">RO/PO:</span> {{ entrada.ro_po|default:"--" }}</p>
+        <div class="avoid-break bg-[#f8fafc] border border-gray-200 p-4 mb-10 flex justify-between items-stretch">
+            <div class="flex-grow flex flex-col justify-center">
+                <h3 class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">Referencias Relacionadas</h3>
+                <div class="flex gap-8">
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase">Pedimento</span>
+                        <span class="text-[10px] font-bold uppercase text-black">{{ entrada.pedimento|default:"N/A" }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase">Order Ref.</span>
+                        <span class="text-[10px] font-bold uppercase text-black">{{ entrada.orden_referencia|default:"N/A" }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase">Invoice</span>
+                        <span class="text-[10px] font-bold uppercase text-black">{{ entrada.documento_referencia|default:"N/A" }}</span>
+                    </div>
+                    <div>
+                        <span class="block text-[8px] font-bold text-gray-400 uppercase">RO / PO</span>
+                        <span class="text-[10px] font-bold uppercase text-black">{{ entrada.ro_po|default:"N/A" }}</span>
+                    </div>
+                </div>
             </div>
-            <div class="border-l-2 border-black pl-4 pr-2">
-                <p class="text-[10px] font-bold uppercase tracking-widest mb-1">Total Ingresado</p>
-                <p class="text-xl font-black">{{ entrada.total_piezas_final|floatformat:2 }}</p>
+
+            <div class="border-l border-gray-300 pl-6 flex flex-col justify-center items-end text-right min-w-[150px]">
+                <span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Ingresado (PZS)</span>
+                <span class="text-3xl font-black text-[#0E2F2A]">{{ entrada.total_piezas_final|floatformat:2 }}</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-4 gap-4 mt-8 pt-4 border-t-2 border-black h-32">
-            <div class="col-span-1 text-[10px] font-bold uppercase border-r border-black pr-2">
-                <p class="mb-1">Observaciones:</p>
-                <p class="font-normal text-[9px]">{{ entrada.observaciones|default:"Sin observaciones de maniobra." }}</p>
+        <div class="avoid-break mt-12 border-t border-gray-200 pt-6">
+            
+            <div class="mb-8">
+                <h3 class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">Observaciones de Operación</h3>
+                <p class="text-[10px] font-medium text-gray-800 uppercase leading-relaxed max-w-3xl">
+                    {{ entrada.observaciones|default:"SIN OBSERVACIONES REGISTRADAS DURANTE LA MANIOBRA DE DESCARGA Y CONTEO." }}
+                </p>
             </div>
-            <div class="col-span-1 text-center border-r border-black px-2 relative">
-                <div class="absolute bottom-6 left-0 right-0 border-b border-black w-3/4 mx-auto"></div>
-                <p class="absolute bottom-0 w-full text-[9px] font-bold uppercase">Supervisor (Recibió)<br>{{ entrada.supervisor_turno|default:"" }}</p>
-            </div>
-            <div class="col-span-1 text-center border-r border-black px-2 relative">
-                <div class="absolute bottom-6 left-0 right-0 border-b border-black w-3/4 mx-auto"></div>
-                <p class="absolute bottom-0 w-full text-[9px] font-bold uppercase">Auditor Inventarios<br>{{ entrada.usuario.username }}</p>
-            </div>
-            <div class="col-span-1 text-center px-2 relative flex flex-col justify-center items-center">
-                <p class="text-xs font-black uppercase tracking-widest text-gray-300 border-4 border-gray-300 p-2 transform rotate-[-15deg]">SELLO DE<br>OPERACIONES</p>
-                <p class="absolute bottom-0 w-full text-[9px] font-bold uppercase">Sello y Fecha</p>
+
+            <div class="grid grid-cols-3 gap-12 mt-16 pt-8">
+                
+                <div class="text-center">
+                    <div class="border-t border-black pt-2 mx-4">
+                        <p class="text-[9px] font-bold text-black uppercase tracking-wider">Supervisor (Recibió)</p>
+                        <p class="text-[8px] font-medium text-gray-500 uppercase mt-1">{{ entrada.supervisor_turno|default:"NOMBRE Y FIRMA" }}</p>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <div class="border-t border-black pt-2 mx-4">
+                        <p class="text-[9px] font-bold text-black uppercase tracking-wider">Auditor de Inventarios</p>
+                        <p class="text-[8px] font-medium text-gray-500 uppercase mt-1">{{ entrada.usuario.username }}</p>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <div class="border-t border-black pt-2 mx-4">
+                        <p class="text-[9px] font-bold text-black uppercase tracking-wider">Chofer Transportista</p>
+                        <p class="text-[8px] font-medium text-gray-500 uppercase mt-1">Sello / Firma de Conformidad</p>
+                    </div>
+                </div>
+
             </div>
         </div>
-
+        
     </div>
 </body>
 </html>
