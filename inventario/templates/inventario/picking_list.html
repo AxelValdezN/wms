@@ -1,159 +1,173 @@
 {% extends 'inventario/base.html' %}
 
 {% block content %}
-<!-- Fondo gris de la aplicación para que la hoja resalte como un documento físico -->
-<div class="min-h-screen bg-[#F9F9F9] py-8 print:bg-white print:py-0 print:min-h-0" style="font-family: 'Space Grotesk', sans-serif;">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;900&display=swap');
     
-    <!-- Barra de Herramientas Flotante -->
-    <div class="max-w-4xl mx-auto px-4 mb-6 flex justify-between items-center print:hidden">
-        <a href="{% url 'inventario:dashboard' %}" class="flex items-center gap-2 text-[#0E2F2A] hover:text-black font-bold uppercase tracking-wider text-sm transition-colors">
+    .document-font { font-family: 'Space Grotesk', sans-serif; }
+    
+    /* Configuracion de Contenedor para Pantalla */
+    .document-container {
+        max-width: 210mm;
+        margin: 2rem auto;
+        background: white;
+        padding: 12mm 15mm;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Reglas estrictas para el motor de impresion */
+    @media print {
+        @page {
+            size: A4;
+            margin: 10mm 15mm;
+        }
+        body { background-color: white !important; margin: 0; padding: 0; }
+        .document-container { box-shadow: none; margin: 0; padding: 0; max-width: 100%; width: 100%; }
+        .no-print { display: none !important; }
+        
+        /* Repetir encabezados de tabla en cada pagina */
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        
+        /* Evitar que filas o bloques se partan a la mitad */
+        tr, .avoid-break { page-break-inside: avoid; }
+        
+        /* Forzar impresion de colores exactos */
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+
+    /* Limpieza de Tabla */
+    .picking-table { width: 100%; border-collapse: collapse; }
+    .picking-table th { 
+        font-size: 10px; 
+        text-transform: uppercase; 
+        letter-spacing: 0.05em;
+        color: #6b7280; 
+        border-bottom: 2px solid #0E2F2A; 
+        padding: 12px 8px; 
+    }
+    .picking-table td { 
+        padding: 16px 8px; 
+        border-bottom: 1px solid #e5e7eb; 
+        vertical-align: middle;
+    }
+</style>
+
+<div class="min-h-screen bg-[#F9F9F9] py-8 print:bg-white print:py-0 print:min-h-0 document-font">
+    
+    <div class="no-print max-w-[210mm] mx-auto px-4 mb-6 flex justify-between items-center z-50 relative">
+        <a href="{% url 'inventario:dashboard' %}" class="flex items-center gap-2 text-[#0E2F2A] hover:text-black font-bold uppercase tracking-wider text-xs transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             Volver a la Torre
         </a>
-        <button onclick="window.print()" class="bg-[#0E2F2A] text-[#B8D700] px-8 py-3 rounded-none text-sm font-bold shadow-md hover:bg-black transition-colors uppercase tracking-wider border border-transparent flex items-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-            Imprimir Hoja de Surtido
+        <button onclick="window.print()" class="bg-[#0E2F2A] text-white px-6 py-3 font-bold uppercase tracking-widest text-xs shadow-lg transition-colors hover:bg-black">
+            🖨️ Imprimir Hoja de Surtido
         </button>
     </div>
 
-    <!-- EL DOCUMENTO -->
-    <div class="max-w-4xl mx-auto bg-white shadow-2xl border border-gray-300 print:shadow-none print:border-none print:max-w-full">
+    {% if request.GET.reimpreso == "true" %}
+    <div class="no-print max-w-[210mm] mx-auto bg-red-600 text-white text-center py-2 text-xs font-bold uppercase tracking-widest shadow-md mb-4">
+        ⚠️ Atención: Copia reimpresa. Movimiento auditado.
+    </div>
+    {% endif %}
+
+    <div class="document-container relative z-10">
         
-        <div class="p-8 sm:p-12 print:p-0">
-            
-            <!-- Cabecera Corporativa -->
-            <div class="border-b-4 border-[#0E2F2A] pb-6 mb-8 flex justify-between items-start">
-                <div>
-                    <h1 class="text-3xl font-black text-[#0E2F2A] tracking-tighter uppercase">Picking List (PEPS)</h1>
-                    <p class="text-sm font-bold text-gray-500 mt-1 uppercase tracking-widest">Path Logistics & Copacker</p>
-                </div>
-                <div class="text-right">
-                    <div class="text-3xl font-black text-[#000000] uppercase tracking-tighter">{{ orden.folio_salida }}</div>
-                    <p class="text-xs font-bold text-gray-500 mt-1 uppercase">Impresión: {% now "d/m/Y H:i" %}</p>
-                </div>
-            </div>
+        {% if request.GET.reimpreso == "true" %}
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.04] z-0">
+            <h1 class="text-[8rem] font-black uppercase text-red-900 transform -rotate-45 whitespace-nowrap">Copia Reimpresa</h1>
+        </div>
+        {% endif %}
 
-            <!-- Datos de Misión -->
-            <div class="bg-gray-50 border-2 border-[#0E2F2A] p-4 mb-8">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Responsable de Extracción</p>
-                        <p class="text-lg font-black text-[#000000] uppercase">{{ orden.asignado_a }}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Destino de Embarque</p>
-                        <p class="text-lg font-black text-[#0E2F2A] uppercase">{{ orden.destino }}</p>
-                    </div>
-                </div>
+        <header class="border-b-2 border-[#0E2F2A] pb-4 mb-6 flex justify-between items-end relative z-10">
+            <div>
+                <h1 class="text-3xl font-black text-[#0E2F2A] tracking-tighter uppercase leading-none">Picking List</h1>
+                <p class="text-[9px] font-bold text-gray-500 mt-1 uppercase tracking-widest">Ruta PEPS Activa</p>
+                <p class="text-[8px] font-medium text-gray-400 mt-2 uppercase">Path Logistics & Copacker</p>
             </div>
+            <div class="text-right">
+                <p class="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-1">Orden de Salida</p>
+                <div class="text-3xl font-black text-black uppercase tracking-tight leading-none">{{ orden.folio_salida }}</div>
+                <p class="text-[8px] font-bold text-gray-400 mt-2 uppercase">Impresión: {% now "d/m/Y H:i" %}</p>
+            </div>
+        </header>
 
-            <!-- Tabla Industrial de Alta Legibilidad -->
-            <table class="w-full mb-12 border-collapse">
+        <div class="bg-[#f8fafc] border border-gray-200 p-4 mb-8 flex justify-between items-stretch relative z-10 avoid-break">
+            <div class="flex-1">
+                <span class="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">Responsable de Surtido</span>
+                <span class="text-lg font-black text-black uppercase">{{ orden.asignado_a }}</span>
+            </div>
+            <div class="flex-1 border-l border-gray-300 pl-6 text-right">
+                <span class="block text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">Destino / Cliente</span>
+                <span class="text-lg font-black text-[#0E2F2A] uppercase">{{ orden.destino }}</span>
+            </div>
+        </div>
+
+        <div class="relative z-10 w-full mb-8">
+            <table class="picking-table">
                 <thead>
-                    <tr class="bg-[#0E2F2A] text-white">
-                        <th class="py-3 px-4 w-12 text-center border-2 border-[#0E2F2A]">
-                            <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </th>
-                        <th class="py-3 px-4 text-left text-xs font-bold uppercase tracking-widest border-2 border-[#0E2F2A]">Ubicación Fís.</th>
-                        <th class="py-3 px-4 text-left text-xs font-bold uppercase tracking-widest border-2 border-[#0E2F2A]">Detalle de Mercancía</th>
-                        <th class="py-3 px-4 text-right text-xs font-bold uppercase tracking-widest border-2 border-[#0E2F2A]">Extracción</th>
+                    <tr>
+                        <th style="width: 8%; text-align: center;">Pick</th>
+                        <th style="width: 25%; text-align: left;">Ubicación Fís.</th>
+                        <th style="width: 47%; text-align: left;">Artículo y Lote</th>
+                        <th style="width: 20%; text-align: right;">Extracción</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white">
+                <tbody>
                     {% for item in detalles %}
                     <tr>
-                        <!-- Columna checkbox Físico -->
-                        <td class="py-4 px-4 text-center border-2 border-[#0E2F2A]">
-                            <div class="w-6 h-6 border-2 border-gray-300 mx-auto rounded-sm print:border-black print:border-2"></div>
+                        <td style="text-align: center;">
+                            <div class="w-5 h-5 border border-gray-400 mx-auto rounded-sm print:border-black"></div>
                         </td>
                         
-                        <!-- Columna rack -->
-                        <td class="py-4 px-4 border-2 border-[#0E2F2A] bg-gray-50">
-                            <span class="block text-2xl font-black text-[#000000] uppercase">{{ item.localizacion.clave }}</span>
+                        <td class="bg-gray-50/50">
+                            <span class="block text-2xl font-black text-black uppercase">{{ item.localizacion.clave }}</span>
                         </td>
                         
-                        <!-- Columna sku y Lote agrupados para limpiar el diseño -->
-                        <td class="py-4 px-4 border-2 border-[#0E2F2A]">
-                            <span class="block text-sm font-bold text-[#0E2F2A] uppercase">{{ item.articulo.clave }}</span>
-                            <span class="block text-[11px] font-bold text-gray-500 mt-1 uppercase tracking-wider">LOTE PEPS: <span class="text-black">{{ item.lote }}</span></span>
+                        <td>
+                            <span class="block text-sm font-bold text-black uppercase">{{ item.articulo.clave }}</span>
+                            <span class="block text-[10px] font-bold text-gray-500 mt-0.5 uppercase tracking-wider">Lote PEPS: <span class="text-black">{{ item.lote }}</span></span>
                         </td>
                         
-                        <!-- Columna: Cantidad -->
-                        <td class="py-4 px-4 border-2 border-[#0E2F2A] bg-gray-50 text-right">
+                        <td class="bg-gray-50/50" style="text-align: right;">
                             <span class="block text-3xl font-black text-[#0E2F2A]">{{ item.cantidad_surtida }}</span>
                         </td>
                     </tr>
                     {% endfor %}
-                    {% if request.GET.reimpreso == "true" %}
-                        <div class="no-print bg-red-600 text-white text-center py-2 text-xs font-black uppercase tracking-widest sticky top-0 z-50">
-                            ⚠️ ATENCIÓN: ESTA ES UNA COPIA REIMPRESA DEL PICKING LIST. NO VÁLIDA PARA DOBLE SURTIDO.
-                        </div>
-                        {% endif %}
-
-                        <div class="relative overflow-hidden bg-white ... (tus clases actuales) ...">
-                            
-                            {% if request.GET.reimpreso == "true" %}
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-[0.06] transform rotate-[-35deg] z-0">
-                                <h1 class="text-7xl font-black border-8 border-red-800 p-4 tracking-widest text-red-800 uppercase">COPIA REIMPRESA</h1>
-                            </div>
-                            {% endif %}
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" class="py-4 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-widest border-2 border-[#0E2F2A]">Meta Control (CC):</td>
-                        <td class="py-4 px-4 text-right text-2xl font-black text-[#000000] border-2 border-[#0E2F2A]">{{ orden.meta_total }}</td>
+                        <td colspan="3" class="pt-6 pb-2 px-4 text-right text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                            Meta Total de Control (PZS):
+                        </td>
+                        <td class="pt-6 pb-2 px-4 text-right border-b-2 border-black">
+                            <span class="text-2xl font-black text-black">{{ orden.meta_total }}</span>
+                        </td>
                     </tr>
                 </tfoot>
             </table>
+        </div>
 
-            <!-- Bloque de Auditoria y Firmas -->
-            <div class="grid grid-cols-2 gap-12 mt-16 pt-8 print:mt-12 print:pt-4">
+        <div class="avoid-break mt-12 border-t border-gray-200 pt-8 relative z-10">
+            <div class="grid grid-cols-2 gap-16 w-3/4 mx-auto">
                 <div class="text-center">
-                    <div class="border-t-2 border-[#000000] mx-4 pt-2">
-                        <p class="text-xs font-bold text-[#000000] uppercase tracking-wider">Extracción / Operador</p>
-                        <p class="text-[10px] text-gray-500 uppercase mt-1">{{ orden.asignado_a }}</p>
+                    <div class="border-t border-black pt-2">
+                        <p class="text-[10px] font-bold text-black uppercase tracking-wider">Operador de Surtido</p>
+                        <p class="text-[9px] font-medium text-gray-500 uppercase mt-1">{{ orden.asignado_a }}</p>
                     </div>
                 </div>
                 <div class="text-center">
-                    <div class="border-t-2 border-[#000000] mx-4 pt-2">
-                        <p class="text-xs font-bold text-[#000000] uppercase tracking-wider">Auditoría de Rampa</p>
-                        <p class="text-[10px] text-gray-500 uppercase mt-1">Firma de Supervisor</p>
+                    <div class="border-t border-black pt-2">
+                        <p class="text-[10px] font-bold text-black uppercase tracking-wider">Auditor de Rampa</p>
+                        <p class="text-[9px] font-medium text-gray-500 uppercase mt-1">Firma de Conformidad</p>
                     </div>
                 </div>
             </div>
-
         </div>
+
     </div>
 </div>
-
-<style>
-    /* Reglas estrictas para garantizar la impresión perfecta */
-    @media print {
-        body, html {
-            background-color: white !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-        }
-        * {
-            -webkit-print-color-adjust: exact !important;
-            -color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-        .print\:hidden { display: none !important; }
-        .print\:shadow-none { box-shadow: none !important; }
-        .print\:border-none { border: none !important; }
-        .print\:bg-white { background-color: white !important; }
-        .print\:p-0 { padding: 0 !important; }
-        .print\:m-0 { margin: 0 !important; }
-        .print\:max-w-full { max-width: 100% !important; width: 100% !important; }
-        /* Fuerza los bordes negros en impresión */
-        table, th, td { border-color: black !important; }
-        
-        @page {
-            margin: 10mm; /* Márgenes físicos de la hoja */
-            size: portrait; /* Orientación vertical */
-        }
-    }
-</style>
 {% endblock %}
