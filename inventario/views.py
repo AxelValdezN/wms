@@ -900,7 +900,7 @@ def detalle_sku(request, articulo_id):
     return render(request, 'inventario/detalle_sku.html', context)
 
 @login_required
-def reactivas_sku(request, articulo_id):
+def reactivar_sku(request, articulo_id):
     """
     Revierte una baja logica (SOFT DELETE)
     """
