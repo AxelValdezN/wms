@@ -41,15 +41,19 @@
 
                     <div class="space-y-4">
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-1 mt-6">2. Clasificación</h3>
-                        <div>
+                        
+                        <div class="relative" id="buscador-sku-container">
                             <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Artículo (SKU)</label>
-                            <select name="articulo" required class="w-full rounded-none border border-gray-300 p-2 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors cursor-pointer">
-                                <option value="" disabled selected>-- SELECCIONAR SKU --</option>
-                                {% for art in articulos %}
-                                    <option value="{{ art.id }}">{{ art.clave }} - {{ art.descripcion }}</option>
-                                {% endfor %}
-                            </select>
+                            
+                            <input type="hidden" name="articulo" id="articulo_id" required>
+                            
+                            <input type="text" id="articulo_search" placeholder="ESCRIBA CLAVE O DESCRIPCIÓN..." autocomplete="off" required
+                                   class="w-full rounded-none border border-gray-300 p-2 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors cursor-text">
+                            
+                            <ul id="articulo_dropdown" class="absolute z-50 w-full bg-white border border-gray-300 shadow-xl hidden max-h-48 overflow-y-auto mt-0.5 divide-y divide-gray-100 text-xs">
+                            </ul>
                         </div>
+
                         <div>
                             <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1.5">Destino Físico (Rack)</label>
                             <select name="localizacion" required class="w-full rounded-none border border-gray-300 p-2 text-sm font-bold uppercase text-[#0E2F2A] focus:ring-0 focus:border-[#0E2F2A] bg-gray-50 focus:bg-white transition-colors cursor-pointer">
@@ -140,4 +144,83 @@
     </div>
 
 </div>
-{% endblock %}
+
+<div id="skus-data-store" class="hidden">
+    {% for art in articulos %}
+        <div class="sku-item" data-id="{{ art.id }}" data-clave="{{ art.clave }}" data-desc="{{ art.descripcion }}"></div>
+    {% endfor %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('articulo_search');
+    const hiddenInput = document.getElementById('articulo_id');
+    const dropdown = document.getElementById('articulo_dropdown');
+
+    // 1. Extraemos los datos desde el DOM
+    const catalogoSKUs = Array.from(document.querySelectorAll('.sku-item')).map(item => ({
+        id: item.getAttribute('data-id'),
+        clave: item.getAttribute('data-clave'),
+        desc: item.getAttribute('data-desc')
+    }));
+
+    // 2. Función de filtrado en tiempo real
+    function renderOptions(query) {
+        dropdown.innerHTML = '';
+        const q = query.toLowerCase().trim();
+        
+        let filtrados = catalogoSKUs;
+        if (q) {
+            filtrados = catalogoSKUs.filter(a => 
+                a.clave.toLowerCase().includes(q) || 
+                a.desc.toLowerCase().includes(q)
+            );
+        }
+
+        // Se limita a 50 resultados para máxima velocidad de renderizado
+        filtrados.slice(0, 50).forEach(art => {
+            const li = document.createElement('li');
+            li.className = 'p-3 hover:bg-[#0E2F2A] hover:text-[#B8D700] cursor-pointer transition-colors text-[#0E2F2A] uppercase border-b border-gray-100 last:border-0';
+            li.innerHTML = `<span class="block font-black text-sm">${art.clave}</span><span class="block text-[10px] font-bold text-gray-500 mt-0.5">${art.desc}</span>`;
+            
+            // Usamos mousedown para vencer la precedencia del evento blur
+            li.addEventListener('mousedown', function(e) {
+                e.preventDefault(); 
+                hiddenInput.value = art.id; 
+                searchInput.value = `${art.clave} - ${art.desc}`; 
+                dropdown.classList.add('hidden');
+                searchInput.blur();
+            });
+            
+            dropdown.appendChild(li);
+        });
+
+        if (filtrados.length === 0) {
+            const li = document.createElement('li');
+            li.className = 'p-4 text-red-600 font-bold uppercase text-[10px] text-center tracking-wider bg-red-50';
+            li.textContent = '⚠️ SIN COINCIDENCIAS EN EL CATÁLOGO';
+            dropdown.appendChild(li);
+        }
+    }
+
+    // 3. Listeners de interacción del usuario
+    searchInput.addEventListener('input', function() {
+        hiddenInput.value = ''; // Rompe la validación si el texto se altera sin seleccionar
+        dropdown.classList.remove('hidden');
+        renderOptions(this.value);
+    });
+
+    searchInput.addEventListener('focus', function() {
+        dropdown.classList.remove('hidden');
+        renderOptions(this.value);
+    });
+
+    searchInput.addEventListener('blur', function() {
+        // Blindaje: Limpia el campo visual si el usuario abandona sin una selección válida
+        if (!hiddenInput.value) {
+            searchInput.value = '';
+        }
+        dropdown.classList.add('hidden');
+    });
+});
+</script>
