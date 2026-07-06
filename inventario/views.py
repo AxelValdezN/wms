@@ -302,31 +302,89 @@ def registrar_salida(request):
 @login_required
 @permission_required('inventario.view_articulo', raise_exception=True)
 def catalogo_articulos(request):
+    """
+    Catálogo Maestro de SKUs (Master Data Management)
+
+    Funcionalidades:
+    - Alta de nuevos SKUs.
+    - Validación de claves duplicadas.
+    - Motor de búsqueda.
+    - Paginación.
+    - Visualización del catálogo.
+    """
+
+    # ==========================================================
+    # POST -> REGISTRO DE NUEVO SKU
+    # ==========================================================
     if request.method == 'POST':
-        clave = request.POST.get('clave').strip()
-        descripcion = request.POST.get('descripcion')
-        unidad_medida = request.POST.get('unidad_medida')
-        familia = request.POST.get('familia')
+
+        clave = request.POST.get('clave', '').strip().upper()
+        descripcion = request.POST.get('descripcion', '').strip().upper()
+        unidad_medida = request.POST.get('unidad_medida', '').strip().upper()
+        familia = request.POST.get('familia', '').strip().upper()
         clasificacion = request.POST.get('clasificacion')
-        #Evitamos que se duplique la clave del artículo
-        if Articulo.objects.filter(clave=clave).exists():
-            messages.error(request, f"Ya existe un artículo con la clave '{clave}'. Por favor, elige una clave diferente.")
+
+        # Validaciones básicas
+        if not all([clave, descripcion, unidad_medida, familia, clasificacion]):
+            messages.error(request, "Todos los campos son obligatorios.")
             return redirect('inventario:catalogo_articulos')
+
+        # Evitar SKUs duplicados
+        if Articulo.objects.filter(clave=clave).exists():
+            messages.error(
+                request,
+                f"Ya existe un artículo con la clave '{clave}'."
+            )
+            return redirect('inventario:catalogo_articulos')
+
+        # Crear artículo
         Articulo.objects.create(
             clave=clave,
             descripcion=descripcion,
             unidad_medida=unidad_medida,
             familia=familia,
-            clasificacion=clasificacion
+            clasificacion=clasificacion,
+            usuario_alta=request.user
         )
-        messages.success(request, f"Artículo '{clave}' agregado exitosamente al catalogo.")
+
+        messages.success(
+            request,
+            f"Artículo '{clave}' registrado correctamente."
+        )
+
+        # Evitamos reenvío del formulario
         return redirect('inventario:catalogo_articulos')
-    #Se muestra el formulario vacio y la lista de articulos existentes
-    contexto = {
-        'articulos': Articulo.objects.all().order_by('clave'),
-        'clasificaciones': Articulo.CLASIFICACION_CHOICES
+
+    # ==========================================================
+    # GET -> BUSCADOR + PAGINACIÓN
+    # ==========================================================
+
+    query = request.GET.get('q', '').strip()
+
+    articulos = Articulo.objects.all().order_by('-id')
+
+    if query:
+        articulos = articulos.filter(
+            Q(clave__icontains=query) |
+            Q(descripcion__icontains=query) |
+            Q(familia__icontains=query)
+        )
+
+    paginator = Paginator(articulos, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'query': query,
+        'clasificaciones': Articulo.CLASIFICACION_CHOICES,
     }
-    return render(request, 'inventario/catalogo_articulos.html', contexto)
+
+    return render(
+        request,
+        'inventario/catalogo_articulos.html',
+        context
+    )
 @login_required
 @permission_required('inventario.view_localizacion', raise_exception=True)
 def catalogo_localizaciones(request):
@@ -822,37 +880,6 @@ def detalle_surtido(request, salida_id):
     }
     
     return render(request, 'inventario/detalle_surtido.html', context)
-
-@login_required
-def catalogo_articulos(request):
-    """
-    Motor de búsqueda y paginación para el Master Data Management de SKUs.
-    """
-    query = request.GET.get('q', '')
-    
-    # Extraemos todos los artículos ordenados por el más reciente
-    articulos_list = Articulo.objects.all().order_by('-id')
-
-    # Filtro asíncrono multiparamétrico
-    if query:
-        articulos_list = articulos_list.filter(
-            Q(clave__icontains=query) |
-            Q(descripcion__icontains=query) |
-            Q(familia__icontains=query)
-        )
-
-    # Paginación estricta: 50 SKUs por bloque para no asfixiar la memoria del navegador
-    paginator = Paginator(articulos_list, 50)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        'page_obj': page_obj,
-        'query': query,
-    }
-    
-    return render(request, 'inventario/catalogo_articulos.html', context)
-
 
 @login_required
 def eliminar_sku_hibrido(request, articulo_id):
