@@ -195,7 +195,7 @@ class OrdenSalida(models.Model):
         related_name='ordenes_asignadas'
     )
     
-    def _str_(self):
+    def __str__(self):
         return f"Orden {self.folio_salida} | Destino: {self.destino} | Asignado a: {self.asignado_a}"
 
 class DetalleSalida(models.Model):
@@ -205,7 +205,7 @@ class DetalleSalida(models.Model):
     lote = models.ForeignKey(Lote, on_delete=models.RESTRICT)
     cantidad_surtida = models.DecimalField(max_digits=12, decimal_places=2)
 
-    def _str_(self):
+    def __str__(self):
         return f"{self.cantidad_surtida} de {self.articulo.clave} (Lote: {self.lote})"
     
 class Embarque(models.Model):
